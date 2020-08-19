@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/style.css">
+	<title>Document</title>
+	<style></style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		section {
+			background: lightgoldenrodyellow;
+			padding: 10px;
+			margin: 20px;
+			border: 5px solid black;
+			position: relative;
+			
+		}
+		article {
+			background:rgb(22, 172, 164);
+			padding: 10px;
+			margin: 20px;
+			border: 5px solid black;
+		}
+		div {
+			background:lightgreen;
+			padding: 10px;
+			margin: 20px;
+			border: 5px solid black;
+		}
+
+
+	</style>
+</head>
+
+<body>
+	<section>
+		<article>
+			<div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ea esse libero quidem deleniti voluptatibus ad! Repudiandae officiis error illum est atque consequatur quis tempore laborum, accusamus aperiam nemo minus nam!</div>
+		</article>
+	</section>
+	<script>
+		"use strict"
+		function changeContent(content){
+			console.log('this ', this)
+			this.textContent = content
+		}
+		let div = document.getElementsByTagName('div')[0]
+		div.addEventListener('click', function(event){ changeContent.call(this, 'call')}) // this == <div>, ok!
+	</script>
+</body>
+
+</html>

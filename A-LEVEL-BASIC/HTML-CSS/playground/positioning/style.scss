@@ -1,0 +1,52 @@
+@import '_variables';
+
+@mixin bgcolor($bgcolor: lightpink) {
+    background-color: $bgcolor;
+    // background-image: url('http://placekitten.com/1000/1000');
+}
+
+@mixin absolute() {
+    position: absolute;
+    top: 0;;
+}
+
+body {
+    @include bgcolor(teal);
+    font-family: $myFont;
+    font-size: $myFontsize;
+    color: $myColor;
+}
+
+#div-1, #div-1a, #div-1b, #div-1c {
+    // margin: 40px;
+} 
+#div-1 {
+    background: black;
+    width: 800px;
+    height: 500px;
+    padding: 20px;
+    border: 1px solid white;
+    position: static;
+}
+
+#div-1a {
+    background: red;
+    padding: 60px;
+    border: 1px solid white;
+    top: 0;
+    right: 0;
+    float: left;
+    width: 200px;
+}
+#div-1b {
+    background: green;
+    padding: 60px;
+    border: 1px solid white;
+    left: 0;
+    width: 400px;
+}
+#div-1c {
+    background: blue;
+    padding: 20px;
+    border: 1px solid white;
+}

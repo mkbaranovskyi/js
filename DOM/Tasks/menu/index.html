@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/style.css">
+	<title>Sliding menu</title>
+</head>
+
+<body>
+	<a href="https://javascript.info/introduction-browser-events#create-a-sliding-menu">Task</a>
+	<br><br>
+	<div class="menu">
+		<span class="title">Sweeties (click me)!</span>
+		<ul>
+			<li>Cake</li>
+			<li>Donut</li>
+			<li>Honey</li>
+		</ul>
+	</div>
+
+	<script>
+		const menuElem = document.getElementsByClassName('menu')[0]
+		// const title = menu.querySelector('.title')
+		
+		menuElem.onclick = function switchMenu(event) {
+			console.log(event.target)
+
+			event.target.parentElement.classList.toggle('opened')
+			
+		}
+
+	</script>
+
+</body>
+
+</html>

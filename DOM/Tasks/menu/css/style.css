@@ -1,0 +1,24 @@
+@charset "UTF-8";
+.menu ul {
+  display: none;
+}
+
+.menu.opened ul {
+  display: block;
+  list-style: none;
+}
+
+.menu.opened .title::before {
+  content: '▼ ';
+  color: blue;
+}
+
+.menu .title {
+  cursor: pointer;
+}
+
+.menu .title::before {
+  content: '▶ ';
+  color: blue;
+}
+/*# sourceMappingURL=style.css.map */

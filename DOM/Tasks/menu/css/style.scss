@@ -1,0 +1,28 @@
+$arrow: blue;
+
+.menu {
+	ul {
+		display: none;
+	}
+
+	&.opened {
+		ul {
+			display: block;
+			list-style: none;
+		}
+
+		.title::before {
+			content: '▼ ';
+			color: $arrow;
+		}
+	}
+
+	& .title {
+		cursor: pointer;
+
+		&::before{
+			content: '▶ ';
+			color: $arrow;
+		}
+	}
+}

@@ -1,0 +1,67 @@
+@use 'normalize';
+@use 'mixins'; 
+@use 'header';
+@use 'corners';
+@use 'forms';
+@use 'functions';
+@use 'variables';
+
+.contact {
+	@include mixins.flexCenter(row, yellow);
+
+	// @extend header;
+	// background-color: green;
+
+	button {
+		background-color: lighten(variables.$primaryBtn, 30%);
+	}
+}
+
+section {
+	border: 1px solid black;
+	@include corners.rounded;
+}
+
+$base-color: #036;
+
+ul {
+	background-color: $base-color;
+	list-style: none;
+	
+	@for $i from 1 through 3 {
+		li:nth-child(3n + #{$i}) {
+			background-color: lighten($base-color, $i * 5%);
+		}
+	}
+}
+
+@mixin paintInColor($element, $property, $value) {
+	#{$element} {
+		#{$property}: #{$value};
+	}
+}
+
+@include paintInColor('body', 'background', 'black');
+
+
+$offset: 20px;
+@debug 'the offset: #{$offset}';
+@debug ['a', 'b', 'c'];
+
+
+$spaceamounts: [1,2,3,4,5]; 
+
+@each $space in $spaceamounts {
+	.m-#{$space} {
+		margin: #{$space}rem;
+	}
+	.my-#{$space} {	// only by the Y axis
+		margin: #{$space}rem 0;
+	}
+	.p-#{$space} {	// only by the Y axis
+		padding: #{$space}rem 0;
+	}
+	.py-#{$space} {	// only by the Y axis
+		padding: #{$space}rem 0;
+	}
+}

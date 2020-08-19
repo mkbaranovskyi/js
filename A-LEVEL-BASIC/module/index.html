@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>recursiveTree</title>
+    <meta charset="UTF8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        #outer {
+            background-color: lightblue;
+            width: 1000px;
+            height: 500px;
+        }
+        #inner {
+            background-color: lightgreen;
+            border: solid black 10px;
+            padding: 20px;
+            margin: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="outer">
+        <div id="inner">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae, ad?</div>
+    </div>
+<!-- <div id="treeContainer"></div>
+
+<script>
+    function recursiveTree(element, struct, container, flag = false){  // flag is boolean, true == ol, false == ul
+        container = container || element
+        let tree; 
+        if(typeof element === 'string') {
+            tree = document.getElementById(element)
+        } else {
+            tree = element
+        }
+        let list = (flag) ? document.createElement('ol') : document.createElement('ul')
+        
+        for(let i=0; i < struct.length; i++){
+            let li = document.createElement('li')
+            if(Array.isArray(struct[i])){
+                li.appendChild(recursiveTree(li, struct[i], container))
+            } else {
+                let a = document.createElement('a')
+                a.href = "#"
+                a.textContent = struct[i]
+                li.appendChild(a)
+            }
+            li.addEventListener('mouseover', function(event){
+                let parents = [], el = event.target
+                while(el.id !== container){
+                    parents.push(el)
+                    el = el.parentNode
+                }
+                for(let i=0; i < parents.length -1; i++){  // -1 for excluding root ul/ol
+                    if(parents[i].nodeName === 'LI') {
+                        parents[i].style.color = 'orange'
+                    }
+                }
+            })
+            li.addEventListener('mouseout', function(event){
+                let parents = [], el = event.target
+                while(el.id !== container){
+                    parents.push(el)
+                    el = el.parentNode
+                }
+                for(let i=0; i < parents.length -1; i++){  // -1 for excluding root ul/ol
+                    parents[i].style.color = ''
+                }
+            })
+            list.appendChild(li)
+        }
+
+        tree.appendChild(list)
+        return list
+    }
+
+
+    var tree = [1,[21,22],3,[41,[421,422]],5]
+
+    recursiveTree('treeContainer',tree)    
+</script> -->
+</body>
+
+</html>

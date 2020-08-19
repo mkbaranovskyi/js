@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form id="myform">
+        <input type="text" name="name">
+        <input type="text" name="surname">
+        <input type="submit">
+    </form>
+    <script>
+        myform.onsubmit = async (event) => {
+            event.preventDefault()
+            let form = new FormData(myform)
+            form.append('name', 'value')
+            focm.delete('name')
+            focm.set('name', blob, fileName)
+            form.get('name')
+
+            let response = await fetch('https://learn.javascript.ru/article/formdata/post/user', {
+                method: "POST",
+                body: form
+            })
+            let result = await response.json()
+            console.log(result)
+        }
+    </script>
+</body>
+</html>
