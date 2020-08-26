@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Custom Select</title>
+
+	<script src="script.js" defer></script>
+	<link rel="stylesheet" href="style.css">
+	
+</head>
+<body>
+
+	<!-- <select name="countries" id="select" is="custom-select">
+		
+	</select> -->
+
+	<template id="template-select">
+		<style>
+			.closed {
+				display: none;
+			}
+		</style>
+
+		<input type="text" name="text" id="input-select" placeholder="">
+
+		<div class="items">
+			<!-- <slot name="title"></slot> -->
+			
+			<slot name="item" class="closed">	</slot name="items">
+		</div>
+	</template>
+
+
+	<custom-select id="select">
+		<div slot="item" value="australia">Australis</div>
+		<div slot="item" value="germany">Germany</div>
+		<div slot="item" value="norway">Norway</div>
+		<div slot="item" value="singapore">Singapore</div>
+		<div slot="item" value="ukraine">Ukraine</div>
+		<div slot="item" value="uruguay">Uruguay</div>
+	</custom-select>
+
+</body>
+</html>
