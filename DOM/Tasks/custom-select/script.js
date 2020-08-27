@@ -33,12 +33,18 @@ class CustomSearch extends HTMLElement {
 				// set input value from the clicked option
 				$input.value = e.target.closest('div[slot="item"]').textContent
 				// and hide the options
-				$itemsContainer.classList.add('closed')
+				finishInput()
 			} 
 			// .. on custom-select but not the option
 			else if(!e.target.closest('custom-select[active]')){
-				$itemsContainer.classList.add('closed')
+				finishInput()
 			} 
+		}
+
+		function finishInput(){
+			$itemsContainer.classList.add('closed')
+			$host.removeAttribute('active')
+			$host.blur()
 		}
 
 		
@@ -89,8 +95,7 @@ class CustomSearch extends HTMLElement {
 		$input.addEventListener('keypress', e => {
 			if(e.code === 'Enter'){
 				$input.value = matchedOptions[0].textContent
-				$itemsContainer.classList.add('closed')
-				this.removeAttribute('active')
+				finishInput()
 			}
 		})
 
@@ -104,7 +109,7 @@ class CustomSearch extends HTMLElement {
 
 		this.addEventListener('focusout', e => {
 			// when custom-select loses focus - it's no longer active
-			this.removeAttribute('active')
+			finishInput()
 		})
 
 	}
