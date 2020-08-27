@@ -6,7 +6,7 @@
 	<title>Custom Select</title>
 
 	<script src="script.js" defer></script>
-	<link rel="stylesheet" href="style.css">
+	<!-- <link rel="stylesheet" href="style.css"> -->
 	
 </head>
 <body>
@@ -24,16 +24,16 @@
 
 		<input type="text" name="text" id="input-select" placeholder="">
 
-		<div class="items">
+		<div class="items-container closed">
 			<!-- <slot name="title"></slot> -->
 			
-			<slot name="item" class="closed">	</slot name="items">
+			<slot name="item">	</slot name="items">
 		</div>
 	</template>
 
 
 	<custom-select id="select">
-		<div slot="item" value="australia">Australis</div>
+		<div slot="item" value="australia">Australia</div>
 		<div slot="item" value="germany">Germany</div>
 		<div slot="item" value="norway">Norway</div>
 		<div slot="item" value="singapore">Singapore</div>

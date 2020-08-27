@@ -7,15 +7,54 @@ class CustomSearch extends HTMLElement {
 		shadow.append($template.content.cloneNode(true))
 
 		const $input = shadow.querySelector('#input-select')
-		const $item = shadow.querySelector('slot[name="item"]')
+		const $itemsContainer = shadow.querySelector('.items-container')
+		console.log($itemsContainer)
 
 		$input.addEventListener('focusin', e => {
-			$item.classList.remove('closed')
+			$itemsContainer.classList.remove('closed')
+
+			// add handler
+			document.addEventListener('mousedown', handleBlur)
 		})
 
 		$input.addEventListener('focusout', e => {
-			$item.classList.add('closed')
+			// remove handler
+			document.removeEventListener('mousedown', handleBlur)
 		})
+
+		function handleBlur(e){
+			console.log(e)
+			
+			// if clicked on the option - change the input value
+			const target = e.target.closest('div[slot="item"]')
+			if(target) {
+				$input.value = target.textContent
+			}
+
+			// either way - hide the container
+			$itemsContainer.classList.add('closed')
+			console.log('hidden')
+		}
+
+
+		// function handleBlur(e){
+		// 	console.log('yo')
+		// 	// // if called the first time - return
+		// 	// if(firstCall) {
+		// 	// 	firstCall = false
+		// 	// 	return
+		// 	// }
+
+		// 	// if clicked on the option - change the input value
+		// 	const target = e.target.closest('div[slot="item"]')
+		// 	if(target) {
+		// 		$input.value = target.textContent
+		// 	}
+
+		// 	// either way - hide the container
+		// 	$itemsContainer.classList.add('closed')
+		// 	console.log('hidden')
+		// }
 	}
 }
 
