@@ -3,6 +3,11 @@ const $template = document.getElementById('template-select')
 
 class CustomSearch extends HTMLElement {
 	connectedCallback(){
+		// custom-select
+		const $host = this
+		const matchedOptions = []
+		console.log($host)
+
 		const shadow = this.attachShadow({ mode: 'open' })
 		shadow.innerHTML = `
 		<style>
@@ -11,12 +16,12 @@ class CustomSearch extends HTMLElement {
 			}
 		</style>
 
-		<input type="text" name="text" placeholder="">
+		<input type="text" name="text" placeholder="Select country">
 
 		<div class="items-container closed">
 			<!-- <slot name="title"></slot> -->
 			
-			<slot name="item">	</slot name="items">
+			<slot name="item">	</slot>
 		</div>`
 
 		const $input = shadow.querySelector('input[name="text"]')
@@ -36,6 +41,9 @@ class CustomSearch extends HTMLElement {
 			} 
 		}
 
+		
+		// === INPUT ===
+
 		$input.addEventListener('focusin', e => {
 			// show options
 			$itemsContainer.classList.remove('closed')
@@ -53,6 +61,46 @@ class CustomSearch extends HTMLElement {
 			// remove handler
 			document.removeEventListener('mousedown', handleClick)
 		})
+
+		$input.addEventListener('input', e => {
+			// remove consequences of the previous call
+			Array.from($host.children).forEach(child => child.hidden = false)
+
+			const regexp = new RegExp(`^${e.target.value}`, 'i')
+			const options = Array.from($host.children)
+			matchedOptions.length = 0
+
+			options.forEach(option => {
+				// hide options that don't match regexp
+				if(!regexp.test(option.textContent)){
+					option.hidden = true
+				} 
+				// options that match, gather to another array
+				else {
+					matchedOptions.push(option)
+				}
+			})
+
+			// highlight the first matching option
+			
+			console.log(matchedOptions)
+		})
+
+		$input.addEventListener('keypress', e => {
+			if(e.code === 'Enter'){
+				$input.value = matchedOptions[0].textContent
+				$itemsContainer.classList.add('closed')
+				this.removeAttribute('active')
+			}
+		})
+
+		$input.addEventListener('change', e => {
+			// make all the options visible again
+			Array.from($host.children).forEach(child => child.hidden = false)
+		})
+
+
+		// === CUSTOM-SELECT ===
 
 		this.addEventListener('focusout', e => {
 			// when custom-select loses focus - it's no longer active
