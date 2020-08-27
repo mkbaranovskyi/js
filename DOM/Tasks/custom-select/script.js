@@ -4,57 +4,61 @@ const $template = document.getElementById('template-select')
 class CustomSearch extends HTMLElement {
 	connectedCallback(){
 		const shadow = this.attachShadow({ mode: 'open' })
-		shadow.append($template.content.cloneNode(true))
+		shadow.innerHTML = `
+		<style>
+			.closed {
+				display: none;
+			}
+		</style>
 
-		const $input = shadow.querySelector('#input-select')
+		<input type="text" name="text" placeholder="">
+
+		<div class="items-container closed">
+			<!-- <slot name="title"></slot> -->
+			
+			<slot name="item">	</slot name="items">
+		</div>`
+
+		const $input = shadow.querySelector('input[name="text"]')
 		const $itemsContainer = shadow.querySelector('.items-container')
-		console.log($itemsContainer)
+
+		function handleClick(e){
+			// if clicked on the option
+			if(e.target.closest('div[slot="item"]')) {
+				// set input value from the clicked option
+				$input.value = e.target.closest('div[slot="item"]').textContent
+				// and hide the options
+				$itemsContainer.classList.add('closed')
+			} 
+			// .. on custom-select but not the option
+			else if(!e.target.closest('custom-select[active]')){
+				$itemsContainer.classList.add('closed')
+			} 
+		}
 
 		$input.addEventListener('focusin', e => {
+			// show options
 			$itemsContainer.classList.remove('closed')
+			// select text in input to quickly change it
+			e.target.select()
+
+			// mark this instance of custom-select as active
+			this.setAttribute('active', 'active')
 
 			// add handler
-			document.addEventListener('mousedown', handleBlur)
+			document.addEventListener('mousedown', handleClick)
 		})
 
 		$input.addEventListener('focusout', e => {
 			// remove handler
-			document.removeEventListener('mousedown', handleBlur)
+			document.removeEventListener('mousedown', handleClick)
 		})
 
-		function handleBlur(e){
-			console.log(e)
-			
-			// if clicked on the option - change the input value
-			const target = e.target.closest('div[slot="item"]')
-			if(target) {
-				$input.value = target.textContent
-			}
+		this.addEventListener('focusout', e => {
+			// when custom-select loses focus - it's no longer active
+			this.removeAttribute('active')
+		})
 
-			// either way - hide the container
-			$itemsContainer.classList.add('closed')
-			console.log('hidden')
-		}
-
-
-		// function handleBlur(e){
-		// 	console.log('yo')
-		// 	// // if called the first time - return
-		// 	// if(firstCall) {
-		// 	// 	firstCall = false
-		// 	// 	return
-		// 	// }
-
-		// 	// if clicked on the option - change the input value
-		// 	const target = e.target.closest('div[slot="item"]')
-		// 	if(target) {
-		// 		$input.value = target.textContent
-		// 	}
-
-		// 	// either way - hide the container
-		// 	$itemsContainer.classList.add('closed')
-		// 	console.log('hidden')
-		// }
 	}
 }
 

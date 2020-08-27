@@ -11,35 +11,16 @@
 </head>
 <body>
 
-	<!-- <select name="countries" id="select" is="custom-select">
-		
-	</select> -->
-
-	<template id="template-select">
-		<style>
-			.closed {
-				display: none;
-			}
-		</style>
-
-		<input type="text" name="text" id="input-select" placeholder="">
-
-		<div class="items-container closed">
-			<!-- <slot name="title"></slot> -->
-			
-			<slot name="item">	</slot name="items">
-		</div>
-	</template>
-
-
-	<custom-select id="select">
-		<div slot="item" value="australia">Australia</div>
-		<div slot="item" value="germany">Germany</div>
-		<div slot="item" value="norway">Norway</div>
-		<div slot="item" value="singapore">Singapore</div>
-		<div slot="item" value="ukraine">Ukraine</div>
-		<div slot="item" value="uruguay">Uruguay</div>
-	</custom-select>
+	<div>
+		<custom-select id="select">
+			<div slot="item" value="australia">Australia</div>
+			<div slot="item" value="germany">Germany</div>
+			<div slot="item" value="norway">Norway</div>
+			<div slot="item" value="singapore">Singapore</div>
+			<div slot="item" value="ukraine">Ukraine</div>
+			<div slot="item" value="uruguay">Uruguay</div>
+		</custom-select>
+	</div>
 
 </body>
 </html>
