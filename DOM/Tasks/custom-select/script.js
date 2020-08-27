@@ -21,26 +21,29 @@ class CustomSearch extends HTMLElement {
 		const $input = shadow.querySelector('input[name="text"]')
 		const $itemsContainer = shadow.querySelector('.items-container')
 
+
 		function handleClick(e){
 			// if clicked on the option
-			if(e.target.closest('div[slot="item"]')) {
+			if(e.target.closest('[slot="item"]')) {
 				// set input value from the clicked option
 				$input.value = e.target.closest('div[slot="item"]').textContent
 				// remember the index of your choice
-				selectedIndex = Array.from($host.children).indexOf(e.target.closest('div[slot="item"]'))
+				selectedIndex = Array.from($host.children).indexOf(e.target.closest('[slot="item"]'))
 				// and hide the options
-				finishInput()
-			} 
-			// .. on custom-select but not the option
-			else if(!e.target.closest('custom-select[active]')){
 				finishInput()
 			} 
 		}
 
+
 		function finishInput(){
 			$itemsContainer.classList.add('closed')
-			$host.removeAttribute('active')
 			$host.blur()
+
+			// if incorrect input - set the least correct one to $input.value
+			if(!checkCorrectInput()){
+				$input.value = ''
+				return
+			}
 		}
 
 		function resetInput(){
@@ -60,11 +63,14 @@ class CustomSearch extends HTMLElement {
 			}
 		}
 
+		function checkCorrectInput(){
+			return Array.from($host.children).some(option => $input.value === option.textContent)
+		}
+
 
 		// === CUSTOM-SELECT ===
 
 		this.addEventListener('focusout', e => {
-			// when custom-select loses focus - it's no longer active
 			finishInput()
 		})
 		
@@ -77,9 +83,6 @@ class CustomSearch extends HTMLElement {
 			$itemsContainer.classList.remove('closed')
 			// select text in input to quickly change it
 			e.target.select()
-
-			// mark this instance of custom-select as active
-			this.setAttribute('active', 'active')
 
 			// add handler
 			document.addEventListener('mousedown', handleClick)
@@ -118,9 +121,21 @@ class CustomSearch extends HTMLElement {
 		$input.addEventListener('keydown', e => {
 			if(e.code === 'Enter' || e.code === 'NumpadEnter'){
 
-				$input.value = matchedOptions[selectedIndex].textContent
-				matchedOptions[selectedIndex].setAttribute('selected', 'selected')
+				// if no matched options (incorrect input)
+				if(!matchedOptions.length){
+					$input.value = ''
+					return
+
+				} else {
+					$input.value = matchedOptions[selectedIndex].textContent
+					// set attribute for the further tracking
+					matchedOptions[selectedIndex].setAttribute('selected', 'selected')
+				}
+
 				finishInput()
+
+			} else if(e.code === 'Escape'){
+				$host.blur()
 
 			} else if(e.code === 'ArrowDown'){
 
