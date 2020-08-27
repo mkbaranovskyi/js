@@ -1,12 +1,8 @@
-const $select = document.getElementById('select')
-const $template = document.getElementById('template-select')
-
 class CustomSearch extends HTMLElement {
 	connectedCallback(){
-		// custom-select
-		const $host = this
-		const matchedOptions = []
-		console.log($host)
+		const $host = this		// custom-select
+		let matchedOptions = Array.from($host.children)
+		let selectedIndex
 
 		const shadow = this.attachShadow({ mode: 'open' })
 		shadow.innerHTML = `
@@ -18,9 +14,7 @@ class CustomSearch extends HTMLElement {
 
 		<input type="text" name="text" placeholder="Select country">
 
-		<div class="items-container closed">
-			<!-- <slot name="title"></slot> -->
-			
+		<div class="items-container closed">			
 			<slot name="item">	</slot>
 		</div>`
 
@@ -32,6 +26,8 @@ class CustomSearch extends HTMLElement {
 			if(e.target.closest('div[slot="item"]')) {
 				// set input value from the clicked option
 				$input.value = e.target.closest('div[slot="item"]').textContent
+				// remember the index of your choice
+				selectedIndex = Array.from($host.children).indexOf(e.target.closest('div[slot="item"]'))
 				// and hide the options
 				finishInput()
 			} 
@@ -47,10 +43,36 @@ class CustomSearch extends HTMLElement {
 			$host.blur()
 		}
 
+		function resetInput(){
+			console.log('reset')
+			matchedOptions = Array.from($host.children)
+			matchedOptions.forEach(option => option.hidden = false)
+
+			// search all options and find the one with a mark, find its index and remove the mark
+			let i = 0
+			for(const option of matchedOptions){
+				if(option.hasAttribute('selected')){
+					selectedIndex = i
+					option.removeAttribute('selected')
+					break
+				}
+				i++
+			}
+		}
+
+
+		// === CUSTOM-SELECT ===
+
+		this.addEventListener('focusout', e => {
+			// when custom-select loses focus - it's no longer active
+			finishInput()
+		})
+		
 		
 		// === INPUT ===
 
 		$input.addEventListener('focusin', e => {
+			resetInput()
 			// show options
 			$itemsContainer.classList.remove('closed')
 			// select text in input to quickly change it
@@ -65,12 +87,13 @@ class CustomSearch extends HTMLElement {
 
 		$input.addEventListener('focusout', e => {
 			// remove handler
+			console.log(selectedIndex)
 			document.removeEventListener('mousedown', handleClick)
 		})
 
+
 		$input.addEventListener('input', e => {
-			// remove consequences of the previous call
-			Array.from($host.children).forEach(child => child.hidden = false)
+			resetInput()
 
 			const regexp = new RegExp(`^${e.target.value}`, 'i')
 			const options = Array.from($host.children)
@@ -87,31 +110,48 @@ class CustomSearch extends HTMLElement {
 				}
 			})
 
-			// highlight the first matching option
-			
-			console.log(matchedOptions)
+			// if we typed anything - the default selection should be 0 of the matching options
+			selectedIndex = 0
 		})
 
-		$input.addEventListener('keypress', e => {
-			if(e.code === 'Enter'){
-				$input.value = matchedOptions[0].textContent
+
+		$input.addEventListener('keydown', e => {
+			if(e.code === 'Enter' || e.code === 'NumpadEnter'){
+
+				$input.value = matchedOptions[selectedIndex].textContent
+				matchedOptions[selectedIndex].setAttribute('selected', 'selected')
 				finishInput()
+
+			} else if(e.code === 'ArrowDown'){
+
+				// going down from the empty input should select 0-index elem
+				if($input.value === ''){
+					selectedIndex = -1
+				}
+
+				selectedIndex ++
+				// loop over the options
+				if(selectedIndex >= matchedOptions.length){
+					selectedIndex = 0
+				}
+
+				$input.value = matchedOptions[selectedIndex].textContent
+
+			} else if(e.code === 'ArrowUp'){
+
+				selectedIndex --
+				// loop over the options
+				if(selectedIndex < 0){
+					selectedIndex = matchedOptions.length - 1
+				}
+
+				$input.value = matchedOptions[selectedIndex].textContent
 			}
 		})
 
 		$input.addEventListener('change', e => {
-			// make all the options visible again
-			Array.from($host.children).forEach(child => child.hidden = false)
+			resetInput()
 		})
-
-
-		// === CUSTOM-SELECT ===
-
-		this.addEventListener('focusout', e => {
-			// when custom-select loses focus - it's no longer active
-			finishInput()
-		})
-
 	}
 }
 
