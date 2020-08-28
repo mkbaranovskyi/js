@@ -41,7 +41,7 @@ class CustomSearch extends HTMLElement {
 			$itemsContainer.classList.add('closed')
 			$host.blur()
 
-			// if incorrect input - set the least correct one to $input.value
+			// if incorrect input - set '' to $input.value
 			if(!checkCorrectInput()){
 				$input.value = ''
 				return
@@ -167,8 +167,12 @@ class CustomSearch extends HTMLElement {
 		})
 
 		$input.addEventListener('change', e => {
-			$host.setAttribute('value', $input.value)
+			// set `value` for our custom-select to be compatible with regular `select`
+			$host.value = $input.value
+			
 			resetInput()
+			
+			$host.dispatchEvent(new Event('change'))
 		})
 	}
 }
