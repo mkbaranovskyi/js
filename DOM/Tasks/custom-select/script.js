@@ -26,11 +26,13 @@ class CustomSearch extends HTMLElement {
 			// if clicked on the option
 			if(e.target.closest('[slot="item"]')) {
 				// set input value from the clicked option
-				$input.value = e.target.closest('div[slot="item"]').textContent
+				$input.value = e.target.closest('[slot="item"]').textContent
 				// remember the index of your choice
 				selectedIndex = Array.from($host.children).indexOf(e.target.closest('[slot="item"]'))
 				// and hide the options
 				finishInput()
+				// signal that we made a change
+				$input.dispatchEvent(new Event('change'))
 			} 
 		}
 
@@ -47,7 +49,6 @@ class CustomSearch extends HTMLElement {
 		}
 
 		function resetInput(){
-			console.log('reset')
 			matchedOptions = Array.from($host.children)
 			matchedOptions.forEach(option => option.hidden = false)
 
@@ -74,7 +75,7 @@ class CustomSearch extends HTMLElement {
 			finishInput()
 		})
 		
-		
+
 		// === INPUT ===
 
 		$input.addEventListener('focusin', e => {
@@ -90,7 +91,6 @@ class CustomSearch extends HTMLElement {
 
 		$input.addEventListener('focusout', e => {
 			// remove handler
-			console.log(selectedIndex)
 			document.removeEventListener('mousedown', handleClick)
 		})
 
@@ -138,6 +138,7 @@ class CustomSearch extends HTMLElement {
 				$host.blur()
 
 			} else if(e.code === 'ArrowDown'){
+				e.preventDefault()
 
 				// going down from the empty input should select 0-index elem
 				if($input.value === ''){
@@ -153,6 +154,7 @@ class CustomSearch extends HTMLElement {
 				$input.value = matchedOptions[selectedIndex].textContent
 
 			} else if(e.code === 'ArrowUp'){
+				e.preventDefault()
 
 				selectedIndex --
 				// loop over the options
@@ -165,6 +167,7 @@ class CustomSearch extends HTMLElement {
 		})
 
 		$input.addEventListener('change', e => {
+			$host.setAttribute('value', $input.value)
 			resetInput()
 		})
 	}
