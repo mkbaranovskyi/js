@@ -7,7 +7,7 @@ class CustomSearch extends HTMLElement {
 				display: none;
 			}
 
-			.selected {
+			.highlighted {
 				background-color: orange;
 			}
 
@@ -35,8 +35,6 @@ class CustomSearch extends HTMLElement {
 			
 		</style>
 
-		<link rel="stylesheet" href="custom_select.css">
-
 		<input type="text" name="text" placeholder="Select country">
 
 		<div class="items-container closed">			
@@ -44,69 +42,69 @@ class CustomSearch extends HTMLElement {
 		</div>`
 
 		const $host = this
-		const $slot = shadow.querySelector('slot')
 		const $input = shadow.querySelector('input[name="text"]')
 		const $itemsContainer = shadow.querySelector('.items-container')
 		const options = Array.from($host.children)
 
-		let started = false
-		let matchedOptions = Array.from($host.children)
-		let selectedIndex = 0
+		let matchedOptions = []
+		let currentSelectedIndex = null,
+			highlightedIndex = null,
+			previousInputIndex = null
 
 		function handleClick(e){
-			// if clicked on the option
-			if(e.target.closest('[slot="item"]')) {
-				// set input value from the clicked option
-				$input.value = e.target.closest('[slot="item"]').textContent
-				// remember the index of your choice
-				selectedIndex = Array.from($host.children).indexOf(e.target.closest('[slot="item"]'))
-				// and hide the options
-				finishInput()
-				// signal that we made a change
-				$input.dispatchEvent(new Event('change'))
-			} 
+			const target = e.target.closest('[slot="item"]')
+			
+			// target is not an option - return
+			if(!target) return
+			
+			// set the input value from the clicked option
+			$input.value = target.textContent
+			// highlight
+			options[highlightedIndex].classList.remove('highlighted')
+			currentSelectedIndex = highlightedIndex = options.indexOf(target)
+			target.classList.add('highlighted')
+			// add property as for `select`
+			$host.selectedIndex = currentSelectedIndex
+
+			// and hide the options
+			finishInput()
+			// signal that we made a change
+			$input.dispatchEvent(new Event('change'))
 		}
 
 
 		function finishInput(){
 			$itemsContainer.classList.add('closed')
 			$host.blur()
+		}
 
-			// if incorrect input - set '' to $input.value
-			if(!checkCorrectInput()){
-				$input.value = ''
-				return
+		/** Returns `true` is input is valid, `false` - otherwise */
+		function validateInput(){
+			if(!matchedOptions.length || !$input.value){
+				return false
 			}
+
+			return true
 		}
 
-		function resetInput(){
-			matchedOptions = Array.from($host.children)
-			matchedOptions.forEach(option => {
-				option.hidden = false
-				option.classList.remove('selected')
-			})
 
-			// search all options and find the one with a mark, find its index and remove the mark
-			let i = 0
-			for(const option of matchedOptions){
-				if(option.hasAttribute('selected')){
-					selectedIndex = i
-					option.removeAttribute('selected')
-					break
-				}
-				i++
-			}
-		}
+		/** Sets `matchedOptions` and `highlightedIndex` */
+		function filterOptions(e){
+			const regexp = new RegExp(`^${e.target.value}`, 'i')
+			matchedOptions.length = 0
 
-		function checkCorrectInput(){
-			return Array.from($host.children).some(option => $input.value === option.textContent)
-		}
-
-		function resetSelection(){
 			options.forEach(option => {
-				option.classList.remove('selected')
+				// hide options that don't match regexp
+				if(!regexp.test(option.textContent)){
+					option.hidden = true
+				} 
+				// save options that match
+				else {
+					matchedOptions.push(option)
+				}
 			})
 		}
+
 
 		// === CUSTOM-SELECT ===
 
@@ -118,15 +116,17 @@ class CustomSearch extends HTMLElement {
 		// === INPUT ===
 
 		$input.addEventListener('focusin', e => {
-			resetInput()
 			// show options
 			$itemsContainer.classList.remove('closed')
-			// select text in input to quickly change it
+			// make all options available
+			matchedOptions = Array.from(options)
+			// select text in the input to quickly change it
 			e.target.select()
-			// select the last choice visually
-			if(started){
-				resetSelection()
-				options[selectedIndex].classList.add('selected')
+
+			// remove the old highlight and set the new one
+			if(currentSelectedIndex !== null){
+				console.log(`focusin: selectedIndex: ${currentSelectedIndex}\nhighlightedIndex: ${highlightedIndex}`)
+				options[currentSelectedIndex].classList.add('highlighted')
 			}
 
 			// add handler
@@ -134,105 +134,112 @@ class CustomSearch extends HTMLElement {
 		})
 
 		$input.addEventListener('focusout', e => {
+			options[highlightedIndex].classList.remove('highlighted')
 			// remove handler
 			document.removeEventListener('mousedown', handleClick)
 		})
 
 
 		$input.addEventListener('input', e => {
-			resetInput()
+			console.log('input')
+			filterOptions(e)
 
-			const regexp = new RegExp(`^${e.target.value}`, 'i')
-			const options = Array.from($host.children)
-			matchedOptions.length = 0
+			if(!matchedOptions.length){
+				return
+			}
 
-			options.forEach(option => {
-				// hide options that don't match regexp
-				if(!regexp.test(option.textContent)){
-					option.hidden = true
-				} 
-				// options that match, gather to another array
-				else {
-					matchedOptions.push(option)
-				}
-			})
+			// Evaluate the global index of the first match
+			previousInputIndex = highlightedIndex
+			highlightedIndex = options.indexOf(matchedOptions[0])
 
-			// if we typed anything - the default selection should be 0 of the matching options
-			selectedIndex = 0
-			matchedOptions[selectedIndex].classList.add('selected')
+			// if there was previous hightlight - remove it
+			if(previousInputIndex){
+				options[previousInputIndex].classList.remove('highlighted')
+			}
+			// set new hightlight
+			console.log(options[highlightedIndex])
+			options[highlightedIndex].classList.add('highlighted')
 		})
 
 
 		$input.addEventListener('keydown', e => {
+
 			if(e.code === 'Enter' || e.code === 'NumpadEnter'){
-
-				// if no matched options (incorrect input)
-				if(!matchedOptions.length){
-					$input.value = ''
+				e.preventDefault()
+				
+				// not valid enter - return
+				if(!validateInput()){
 					return
-
-				} else {
-					$input.value = matchedOptions[selectedIndex].textContent
-					// set attribute for the further tracking
-					matchedOptions[selectedIndex].setAttribute('selected', 'selected')
+				}
+				
+				// we still didn't move anywhere - return
+				if(highlightedIndex === null){
+					return
 				}
 
+				$input.value = options[highlightedIndex].textContent
+				// remember the index
+				$host.selectedIndex = currentSelectedIndex = highlightedIndex 
+				
 				finishInput()
 
 			} else if(e.code === 'Escape'){
+				$input.value = options[currentSelectedIndex].textContent
 				$host.blur()
 
 			} else if(e.code === 'ArrowDown'){
+				
 				e.preventDefault()
 
-				// going down from the empty input should select 0-index elem
-				if($input.value === ''){
-					selectedIndex = -1
+				// we start from 0-index
+				if(highlightedIndex === null){
+					highlightedIndex = -1
 				}
 
-				selectedIndex ++
-
-				// deselect previous
-				resetSelection()
-
-				// loop over the options
-				if(selectedIndex >= matchedOptions.length){
-					selectedIndex = 0
+				// remove the old highlight
+				if(highlightedIndex >= 0){
+					options[highlightedIndex].classList.remove('highlighted')
 				}
 
-				$input.value = matchedOptions[selectedIndex].textContent
+				// switch to the next option
+				highlightedIndex ++
+				// carousel
+				if(highlightedIndex >= options.length){
+					highlightedIndex = 0
+				}
 
-				// select current
-				matchedOptions[selectedIndex].classList.add('selected')
+				// set the value and highlight
+				$input.value = options[highlightedIndex].textContent
+				options[highlightedIndex].classList.add('highlighted')
 
-
-			} else if(e.code === 'ArrowUp'){
-				console.log(selectedIndex)
+			} else if(e.code === 'ArrowUp'){				
 				e.preventDefault()
+				
+				// the first move
+				if(highlightedIndex === null){
+					highlightedIndex = 0
+				} 
+				
+				// remove the old highlight
+				options[highlightedIndex].classList.remove('highlighted')
 
-				// deselect previous
-				resetSelection()
-
-				selectedIndex --
-
-				// loop over the options
-				if(selectedIndex < 0){
-					selectedIndex = matchedOptions.length - 1
+				// switch to the next option
+				highlightedIndex --
+				// carousel
+				if(highlightedIndex < 0){
+					highlightedIndex = options.length - 1
 				}
 
-				$input.value = matchedOptions[selectedIndex].textContent
-
-				// select current
-				matchedOptions[selectedIndex].classList.add('selected')
+				// set the value and highlight
+				$input.value = options[highlightedIndex].textContent
+				options[highlightedIndex].classList.add('highlighted')
 			}
 		})
 
 		$input.addEventListener('change', e => {
 			// set `value` for our custom-select to be compatible with regular `select`
 			$host.value = $input.value
-			
-			resetInput()
-			
+						
 			$host.dispatchEvent(new Event('change'))
 		})
 
@@ -242,15 +249,21 @@ class CustomSearch extends HTMLElement {
 		$itemsContainer.addEventListener('mouseover', e => {
 			const target = e.target.closest('[slot]')
 			if(target){
-				Array.from($host.children).forEach(option => option.classList.remove('selected'))
-				target.classList.add('selected')
+				// remove current selection
+				if(highlightedIndex !== null){
+					options[highlightedIndex].classList.remove('highlighted')
+				}
+				// set new selection and value 
+				highlightedIndex = options.indexOf(target)
+				target.classList.add('highlighted')
+				$input.value = target.textContent
 			}
 		})
 
 		$itemsContainer.addEventListener('mouseout', e => {
 			const target = e.target.closest('[slot]')
 			if(target){
-				target.classList.remove('selected')
+				target.classList.remove('highlighted')
 			}
 		})
 	}
