@@ -46,33 +46,39 @@ class CustomSearch extends HTMLElement {
 			highlightedIndex = null,
 			inputIndex = 0
 
-		function handleClick(e){
-			const target = e.target.closest('option')
-			
-			if(!target) {
+
+		// ===== FUNCTIONS =====
+
+		function handleClick(e){		
+
+			if(e.target.closest('option')){
+				const target = e.target.closest('option')
+
+				// set the input value from the clicked option
+				$input.value = target.textContent
+				// highlight
+				options[highlightedIndex].classList.remove('highlighted')
+				target.classList.add('highlighted')
+				// add property as for `select`
+				$host.selectedIndex = highlightedIndex = options.indexOf(target)
+	
+				// and hide the options
+				finishInput()
+				// signal that we made a change
+				$input.dispatchEvent(new Event('change'))
+			} 
+
+			// not our element or its children
+			else if(e.target !== $host){
 				// restore previous selected value 
 				if($host.selectedIndex === null){
 					$input.value = ''
 					return
 				}
-
+	
 				$input.value = options[$host.selectedIndex].textContent
 				highlightedIndex = $host.selectedIndex
-				return
 			}
-			
-			// set the input value from the clicked option
-			$input.value = target.textContent
-			// highlight
-			options[highlightedIndex].classList.remove('highlighted')
-			target.classList.add('highlighted')
-			// add property as for `select`
-			$host.selectedIndex = highlightedIndex = options.indexOf(target)
-
-			// and hide the options
-			finishInput()
-			// signal that we made a change
-			$input.dispatchEvent(new Event('change'))
 		}
 
 
@@ -139,14 +145,14 @@ class CustomSearch extends HTMLElement {
 		}
 
 
-		// === CUSTOM-SELECT ===
+		// ===== CUSTOM-SELECT =====
 
 		this.addEventListener('focusout', e => {
 			finishInput()
 		})
 		
 
-		// === INPUT ===
+		// ===== INPUT =====
 
 		$input.addEventListener('focusin', e => {
 			// make all the options visible and matched
@@ -213,9 +219,13 @@ class CustomSearch extends HTMLElement {
 				finishInput()
 
 			} else if(e.code === 'Escape'){
-				$input.value = options[$host.selectedIndex].textContent
+				if($host.selectedIndex === null){
+					$input.value = ''
+				} else {
+					$input.value = options[$host.selectedIndex].textContent
+				}
+
 				$host.blur()
-				// fixes bug when `highlightedIndex !== selectedIndex` after focusout, which should never happen
 				highlightedIndex = $host.selectedIndex
 
 			} else if(e.code === 'ArrowDown'){				
@@ -286,7 +296,7 @@ class CustomSearch extends HTMLElement {
 		})
 
 
-		// === SLOT ===
+		// ===== SLOT =====
 
 		$itemsContainer.addEventListener('mouseover', e => {
 			const target = e.target.closest('option')
