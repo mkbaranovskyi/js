@@ -20,10 +20,14 @@ class CustomSearch extends HTMLElement {
 				cursor: pointer;
 			}
 
+			::slotted(.highlighted){
+				background: orange;
+			}
+
 			.items-container * {
 				position: absolute;
 				width: 200px;
-				max-height: 200px;
+				max-height: 800px;
 				overflow-y: auto;
 			}
 		</style>
@@ -204,6 +208,8 @@ class CustomSearch extends HTMLElement {
 			} else if(e.code === 'Escape'){
 				$input.value = options[$host.selectedIndex].textContent
 				$host.blur()
+				// fixes bug when `highlightedIndex !== selectedIndex` after focusout, which should never happen
+				highlightedIndex = $host.selectedIndex
 
 			} else if(e.code === 'ArrowDown'){				
 				e.preventDefault()
