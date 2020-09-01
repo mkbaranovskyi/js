@@ -49,7 +49,7 @@ class CustomSearch extends HTMLElement {
 		let matchedOptions = []
 		let currentSelectedIndex = null,
 			highlightedIndex = null,
-			previousInputIndex = null
+			inputIndex = 0
 
 		function handleClick(e){
 			const target = e.target.closest('[slot="item"]')
@@ -88,7 +88,7 @@ class CustomSearch extends HTMLElement {
 		}
 
 
-		/** Sets `matchedOptions` and `highlightedIndex` */
+		/** Sets `matchedOptions` and builds the list of visible options */
 		function filterOptions(e){
 			const regexp = new RegExp(`^${e.target.value}`, 'i')
 			matchedOptions.length = 0
@@ -98,11 +98,35 @@ class CustomSearch extends HTMLElement {
 				if(!regexp.test(option.textContent)){
 					option.hidden = true
 				} 
-				// save options that match
+				// show options that match and save them additionally to an array
 				else {
+					option.hidden = false
 					matchedOptions.push(option)
 				}
 			})
+		}
+
+		/** Handler for ArrowDown and ArrowUp that loops over the matching options
+		 * @param {boolean} down - `true` if ArrowDown, `false` if ArrowUp
+		 */
+		function moveOverMatches(down){
+			// switch to the next matched option
+			if(down){
+				inputIndex ++
+			} else {
+				inputIndex --
+			}
+			// carousel
+			if(inputIndex >= matchedOptions.length){
+				inputIndex = 0
+			} else if(inputIndex < 0){
+				inputIndex = matchedOptions.length - 1
+			}
+			
+			// learn the global index of the current matched option and highlight it
+			highlightedIndex = options.indexOf(matchedOptions[inputIndex])
+			options[highlightedIndex].classList.add('highlighted')
+			$input.value = options[highlightedIndex].textContent
 		}
 
 
@@ -123,9 +147,8 @@ class CustomSearch extends HTMLElement {
 			// select text in the input to quickly change it
 			e.target.select()
 
-			// remove the old highlight and set the new one
+			// highlight the previous choice
 			if(currentSelectedIndex !== null){
-				console.log(`focusin: selectedIndex: ${currentSelectedIndex}\nhighlightedIndex: ${highlightedIndex}`)
 				options[currentSelectedIndex].classList.add('highlighted')
 			}
 
@@ -141,23 +164,18 @@ class CustomSearch extends HTMLElement {
 
 
 		$input.addEventListener('input', e => {
-			console.log('input')
 			filterOptions(e)
-
 			if(!matchedOptions.length){
 				return
 			}
 
-			// Evaluate the global index of the first match
-			previousInputIndex = highlightedIndex
-			highlightedIndex = options.indexOf(matchedOptions[0])
-
-			// if there was previous hightlight - remove it
-			if(previousInputIndex){
-				options[previousInputIndex].classList.remove('highlighted')
+			// if there's a hightlight - remove it
+			if(highlightedIndex !== null){
+				options[highlightedIndex].classList.remove('highlighted')
 			}
-			// set new hightlight
-			console.log(options[highlightedIndex])
+
+			// Evaluate an index of the first match and highlight it
+			highlightedIndex = options.indexOf(matchedOptions[0])
 			options[highlightedIndex].classList.add('highlighted')
 		})
 
@@ -188,6 +206,7 @@ class CustomSearch extends HTMLElement {
 				$host.blur()
 
 			} else if(e.code === 'ArrowDown'){
+				console.log(matchedOptions)
 				
 				e.preventDefault()
 
@@ -199,6 +218,12 @@ class CustomSearch extends HTMLElement {
 				// remove the old highlight
 				if(highlightedIndex >= 0){
 					options[highlightedIndex].classList.remove('highlighted')
+				}
+
+				// if we arrow down after input
+				if(matchedOptions.length < options.length){
+					moveOverMatches(true)
+					return
 				}
 
 				// switch to the next option
@@ -222,6 +247,12 @@ class CustomSearch extends HTMLElement {
 				
 				// remove the old highlight
 				options[highlightedIndex].classList.remove('highlighted')
+
+				// if we arrow up after input
+				if(matchedOptions.length < options.length){
+					moveOverMatches(false)
+					return
+				}
 
 				// switch to the next option
 				highlightedIndex --
@@ -247,6 +278,7 @@ class CustomSearch extends HTMLElement {
 		// === SLOT ===
 
 		$itemsContainer.addEventListener('mouseover', e => {
+			console.log('mouseover')
 			const target = e.target.closest('[slot]')
 			if(target){
 				// remove current selection
