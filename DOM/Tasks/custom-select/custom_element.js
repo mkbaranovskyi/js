@@ -7,10 +7,6 @@ class CustomSearch extends HTMLElement {
 				display: none;
 			}
 
-			.highlighted {
-				background-color: orange;
-			}
-
 			:host {
 				display: block;
 				width: 200px;
@@ -29,10 +25,7 @@ class CustomSearch extends HTMLElement {
 				width: 200px;
 				max-height: 200px;
 				overflow-y: auto;
-				background-color: white;
-				border: 1px solid black;
 			}
-			
 		</style>
 
 		<input type="text" name="text" placeholder="Select country">
@@ -45,10 +38,10 @@ class CustomSearch extends HTMLElement {
 		const $input = shadow.querySelector('input[name="text"]')
 		const $itemsContainer = shadow.querySelector('.items-container')
 		const options = Array.from($host.children)
-
+		
+		$host.selectedIndex = null	// index of the last (and current) selected option
 		let matchedOptions = []
-		let currentSelectedIndex = null,
-			highlightedIndex = null,
+		let highlightedIndex = null,
 			inputIndex = 0
 
 		function handleClick(e){
@@ -61,10 +54,9 @@ class CustomSearch extends HTMLElement {
 			$input.value = target.textContent
 			// highlight
 			options[highlightedIndex].classList.remove('highlighted')
-			currentSelectedIndex = highlightedIndex = options.indexOf(target)
 			target.classList.add('highlighted')
 			// add property as for `select`
-			$host.selectedIndex = currentSelectedIndex
+			$host.selectedIndex = highlightedIndex = options.indexOf(target)
 
 			// and hide the options
 			finishInput()
@@ -92,7 +84,13 @@ class CustomSearch extends HTMLElement {
 		function filterOptions(e){
 			const regexp = new RegExp(`^${e.target.value}`, 'i')
 			matchedOptions.length = 0
-
+			resetMatchedOptions(regexp)
+		}
+		
+		/** Makes all the options that passed the regexp match, visible. If no regexp provided, makes all options visible 
+		 * @param {RegExp} regexp - regexp to match options against, or nothing at all
+		*/
+		function resetMatchedOptions(regexp = /.*/){
 			options.forEach(option => {
 				// hide options that don't match regexp
 				if(!regexp.test(option.textContent)){
@@ -140,6 +138,8 @@ class CustomSearch extends HTMLElement {
 		// === INPUT ===
 
 		$input.addEventListener('focusin', e => {
+			// make all the options visible and matched
+			resetMatchedOptions()
 			// show options
 			$itemsContainer.classList.remove('closed')
 			// make all options available
@@ -148,8 +148,8 @@ class CustomSearch extends HTMLElement {
 			e.target.select()
 
 			// highlight the previous choice
-			if(currentSelectedIndex !== null){
-				options[currentSelectedIndex].classList.add('highlighted')
+			if($host.selectedIndex !== null){
+				options[$host.selectedIndex].classList.add('highlighted')
 			}
 
 			// add handler
@@ -197,17 +197,15 @@ class CustomSearch extends HTMLElement {
 
 				$input.value = options[highlightedIndex].textContent
 				// remember the index
-				$host.selectedIndex = currentSelectedIndex = highlightedIndex 
+				$host.selectedIndex = highlightedIndex 
 				
 				finishInput()
 
 			} else if(e.code === 'Escape'){
-				$input.value = options[currentSelectedIndex].textContent
+				$input.value = options[$host.selectedIndex].textContent
 				$host.blur()
 
-			} else if(e.code === 'ArrowDown'){
-				console.log(matchedOptions)
-				
+			} else if(e.code === 'ArrowDown'){				
 				e.preventDefault()
 
 				// we start from 0-index
@@ -278,7 +276,6 @@ class CustomSearch extends HTMLElement {
 		// === SLOT ===
 
 		$itemsContainer.addEventListener('mouseover', e => {
-			console.log('mouseover')
 			const target = e.target.closest('[slot]')
 			if(target){
 				// remove current selection
