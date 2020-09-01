@@ -3,6 +3,10 @@ class CustomSearch extends HTMLElement {
 		const shadow = this.attachShadow({ mode: 'open' })
 		shadow.innerHTML = `
 		<style>
+			* {
+				box-sizing: border-box;
+			}
+
 			.closed {
 				display: none;
 			}
@@ -21,8 +25,15 @@ class CustomSearch extends HTMLElement {
 				background: orange;
 			}
 
-			.items-container * {
+			::slotted(option) {
+				display: block;
+				border: 1px solid lightgrey;
+			}
+
+			.items-container {
 				position: absolute;
+				background-color: white;
+				border: 1px solid black;
 				width: 200px;
 				max-height: 800px;
 				overflow-y: auto;
@@ -38,16 +49,23 @@ class CustomSearch extends HTMLElement {
 		const $host = this
 		const $input = shadow.querySelector('input[name="text"]')
 		const $itemsContainer = shadow.querySelector('.items-container')
-		const options = Array.from($host.children)
-		
 		$input.placeholder = $host.getAttribute('placeholder') || ''
-		$host.selectedIndex = null	// index of the last (and current) selected option
-		let matchedOptions = [],
-			highlightedIndex = null,
-			inputIndex = 0
+
+		let options,
+			matchedOptions,
+			highlightedIndex,
+			inputIndex
 
 
 		// ===== FUNCTIONS =====
+
+		function initializeCustomElement(){
+			options = Array.from($host.children)
+			$host.selectedIndex = null
+			matchedOptions = [],
+			highlightedIndex = null,
+			inputIndex = 0
+		}
 
 		function handleClick(e){		
 
@@ -150,6 +168,8 @@ class CustomSearch extends HTMLElement {
 		this.addEventListener('focusout', e => {
 			finishInput()
 		})
+
+		shadow.children[2].addEventListener('slotchange', initializeCustomElement)
 		
 
 		// ===== INPUT =====
