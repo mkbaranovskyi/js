@@ -27,7 +27,7 @@ class CustomSearch extends HTMLElement {
 
 			::slotted(option) {
 				display: block;
-				border: 1px solid lightgrey;
+				border-top: 1px solid lightgrey;
 			}
 
 			.items-container {
@@ -37,6 +37,7 @@ class CustomSearch extends HTMLElement {
 				width: 200px;
 				max-height: 800px;
 				overflow-y: auto;
+				padding-bottom: 5px;
 			}
 		</style>
 
@@ -51,11 +52,11 @@ class CustomSearch extends HTMLElement {
 		const $itemsContainer = shadow.querySelector('.items-container')
 		$input.placeholder = $host.getAttribute('placeholder') || ''
 
+		// initialized after `slotchange` event
 		let options,
 			matchedOptions,
 			highlightedIndex,
 			inputIndex
-
 
 		// ===== FUNCTIONS =====
 
@@ -66,9 +67,10 @@ class CustomSearch extends HTMLElement {
 			highlightedIndex = null,
 			inputIndex = 0
 		}
+		
+		function handleClick(e){
 
-		function handleClick(e){		
-
+			// clicked on an option
 			if(e.target.closest('option')){
 				const target = e.target.closest('option')
 
@@ -80,22 +82,29 @@ class CustomSearch extends HTMLElement {
 				// add property as for `select`
 				$host.selectedIndex = highlightedIndex = options.indexOf(target)
 	
-				// and hide the options
-				finishInput()
 				// signal that we made a change
 				$input.dispatchEvent(new Event('change'))
-			} 
+				finishInput()
+			}
 
-			// not our element or its children
-			else if(e.target !== $host){
-				// restore previous selected value 
-				if($host.selectedIndex === null){
-					$input.value = ''
-					return
+			// not an option but still our element
+			else {
+				if(e.target === $host){
+					inputFinished = false
+					$host.focus()
 				}
-	
-				$input.value = options[$host.selectedIndex].textContent
-				highlightedIndex = $host.selectedIndex
+
+				// anywhere else
+				else {
+					// restore previous selected value 
+					if($host.selectedIndex === null){
+						$input.value = ''
+					} else {
+						$input.value = options[$host.selectedIndex].textContent
+					}
+					highlightedIndex = $host.selectedIndex
+					finishInput()
+				}
 			}
 		}
 
@@ -103,6 +112,7 @@ class CustomSearch extends HTMLElement {
 		function finishInput(){
 			$itemsContainer.classList.add('closed')
 			$host.blur()
+			document.removeEventListener('mousedown', handleClick)
 		}
 
 		/** Returns `true` is input is valid, `false` - otherwise */
@@ -165,11 +175,7 @@ class CustomSearch extends HTMLElement {
 
 		// ===== CUSTOM-SELECT =====
 
-		this.addEventListener('focusout', e => {
-			finishInput()
-		})
-
-		shadow.children[2].addEventListener('slotchange', initializeCustomElement)
+		$itemsContainer.addEventListener('slotchange', initializeCustomElement)
 		
 
 		// ===== INPUT =====
@@ -177,16 +183,14 @@ class CustomSearch extends HTMLElement {
 		$input.addEventListener('focusin', e => {
 			// make all the options visible and matched
 			resetMatchedOptions()
-			// show options
 			$itemsContainer.classList.remove('closed')
-			// make all options available
-			matchedOptions = Array.from(options)
 			// select text in the input to quickly change it
 			e.target.select()
 
 			// highlight the previous choice
 			if($host.selectedIndex !== null){
-				options[$host.selectedIndex].classList.add('highlighted')
+				highlightedIndex = $host.selectedIndex
+				options[highlightedIndex].classList.add('highlighted')
 			}
 
 			// add handler
@@ -194,9 +198,9 @@ class CustomSearch extends HTMLElement {
 		})
 
 		$input.addEventListener('focusout', e => {
-			options[highlightedIndex].classList.remove('highlighted')
-			// remove handler
-			document.removeEventListener('mousedown', handleClick)
+			if(highlightedIndex !== null){
+				options[highlightedIndex].classList.remove('highlighted')
+			}
 		})
 
 
@@ -245,10 +249,9 @@ class CustomSearch extends HTMLElement {
 					$input.value = options[$host.selectedIndex].textContent
 				}
 
-				$host.blur()
-				highlightedIndex = $host.selectedIndex
+				finishInput()
 
-			} else if(e.code === 'ArrowDown'){				
+			} else if(e.code === 'ArrowDown'){
 				e.preventDefault()
 
 				// we start from 0-index
