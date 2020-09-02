@@ -14,10 +14,14 @@ class CustomSearch extends HTMLElement {
 			:host {
 				display: block;
 				width: 200px;
+				height: 30px;
+				margin: 10px 20px 0;
 			}
 
 			input {
 				width: 100%;
+				height: 100%;
+				font-size: 16px;
 			}
 
 			::slotted(.highlighted){
@@ -28,6 +32,7 @@ class CustomSearch extends HTMLElement {
 			::slotted(option) {
 				display: block;
 				border-top: 1px solid lightgrey;
+				padding: 3px 5px 3px;
 			}
 
 			.items-container {
@@ -39,9 +44,13 @@ class CustomSearch extends HTMLElement {
 				overflow-y: auto;
 				padding-bottom: 5px;
 			}
+
+			::placeholder {
+				font-size: 16px;
+			}
 		</style>
 
-		<input type="text" name="text">
+		<input type="text" name="text" class="form-control">
 
 		<div class="items-container closed">
 			<slot>	</slot>
