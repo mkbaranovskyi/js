@@ -20,6 +20,9 @@
   - [Dropdowns](#dropdowns)
   - [Collapsible](#collapsible)
   - [Nav](#nav)
+  - [Navigation Bar](#navigation-bar)
+  - [Forms](#forms)
+  - [Inputs](#inputs)
     - [`col`](#col)
     - [`row`](#row)
 
@@ -830,6 +833,233 @@ Lorem ipsum dolor text....
 
 
 ## Nav
+
+`.nav` for `<ul>`, `.nav-item` for `<li>`, `.nav-link` for `<a>`
+
+`flex-column` for `<ul>` to make it **vertical**
+
+```html
+<ul class="nav justify-content-end">
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#">Disabled</a>
+  </li>
+</ul>
+```
+
+![](img/2020-08-31-10-51-00.png)
+
+Add `.nav-tabs` or `.nav-pills` for more styling. Add `.nav-justified` for **equal width**
+
+```html
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active" href="#">Active</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Link</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#">Disabled</a>
+  </li>
+</ul>
+```
+
+![](img/2020-08-31-10-54-42.png)
+
+**Toggleable / Dynamic Tabs**
+
+```html
+<ul class="nav nav-tabs" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" href="#home">Home</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#menu1">Menu 1</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#menu2">Menu 2</a>
+  </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div id="home" class="container tab-pane active"><br>
+    <h3>HOME</h3>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+  </div>
+  <div id="menu1" class="container tab-pane fade"><br>
+    <h3>Menu 1</h3>
+    <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+  </div>
+  <div id="menu2" class="container tab-pane fade"><br>
+    <h3>Menu 2</h3>
+    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+  </div>
+</div>
+```
+
+![](img/2020-08-31-11-00-15.png)
+
+***
+
+
+
+## Navigation Bar
+
+`.fixed-top, .fixed-bottom` to make it sticky.
+
+![](img/2020-08-31-11-02-34.png)
+
+```html
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin:24px 0;">
+  <a class="navbar-brand" href="javascript:void(0)">Logo</a>
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navb">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="javascript:void(0)">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="javascript:void(0)">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="javascript:void(0)">Disabled</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="text" placeholder="Search">
+      <button class="btn btn-success my-2 my-sm-0" type="button">Search</button>
+    </form>
+  </div>
+</nav>
+```
+
+**Collapsing** The Navigation Bar. Use a button with `class="navbar-toggler"`, `data-toggle="collapse"` and `data-target="#thetarget"`. Then wrap the navbar content (links, etc) inside a div element with `class="collapse navbar-collapse"`, followed by an id that matches the `data-target` of the button: `"thetarget"`.
+
+```html
+<nav class="navbar navbar-expand-md bg-dark navbar-dark">
+  <a class="navbar-brand" href="#">Navbar</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>    
+    </ul>
+  </div>  
+</nav>
+```
+
+![](img/2020-08-31-11-07-02.png)
+
+***
+
+
+
+## Forms
+
+Form controls automatically receive some global styling with Bootstrap. All textual `<input>`, `<textarea>`, and `<select>` elements with class `.form-control` have a **width of 100%**.
+
+Bootstrap provides two types of form layouts:
+
+- Stacked (full-width) form
+- Inline form
+
+```html
+<form action="/action_page.php">
+  <div class="form-group">
+    <label for="email">Email:</label>
+    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+  </div>
+  <div class="form-group">
+    <label for="pwd">Password:</label>
+    <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pswd">
+  </div>
+  <div class="form-group form-check">
+    <label class="form-check-label">
+      <input class="form-check-input" type="checkbox" name="remember"> Remember me
+    </label>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+```
+
+![](img/2020-08-31-13-02-46.png)
+
+***
+
+**Validation**
+
+Add `.was-validated` or `.needs-validation` to the form to check it before of after submitting the form.
+
+![](img/2020-08-31-13-08-10.png)
+
+```html
+<form action="/action_page.php" class="was-validated">
+  <div class="form-group">
+    <label for="uname">Username:</label>
+    <input type="text" class="form-control" id="uname" placeholder="Enter username" name="uname" required>
+    <div class="valid-feedback">Valid.</div>
+    <div class="invalid-feedback">Please fill out this field.</div>
+  </div>
+  <div class="form-group">
+    <label for="pwd">Password:</label>
+    <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pswd" required>
+    <div class="valid-feedback">Valid.</div>
+    <div class="invalid-feedback">Please fill out this field.</div>
+  </div>
+  <div class="form-group form-check">
+    <label class="form-check-label">
+      <input class="form-check-input" type="checkbox" name="remember" required> I agree on blabla.
+      <div class="valid-feedback">Valid.</div>
+      <div class="invalid-feedback">Check this checkbox to continue.</div>
+    </label>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+```
+
+***
+
+
+
+## Inputs
+
+`class="form-check"` ensures proper margins for labels and checkboxes.
+
+```html
+
+```
+
+
+
+
+
+
+
 
 
 

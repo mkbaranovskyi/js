@@ -10,55 +10,19 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
 		integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-	<style>
-		.row {
-			background-color: skyblue;
-		}
-	</style>
+	<link rel="stylesheet" href="custom_element.css">
 
 </head>
 
 <body>
 
 	
-	<div id="accordion">
-		<div class="card">
-		  <div class="card-header">
-			<a class="card-link" data-toggle="collapse" href="#collapseOne">
-			  Collapsible Group Item #1
-			</a>
-		  </div>
-		  <div id="collapseOne" class="collapse show" >
-			<div class="card-body">
-			  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-			</div>
-		  </div>
-		</div>
-		<div class="card">
-		  <div class="card-header show">
-			<a class="collapsed card-link" data-toggle="collapse" href="#collapseTwo">
-			Collapsible Group Item #2
-		  </a>
-		  </div>
-		  <div id="collapseTwo" class="collapse" data-parent="#accordion">
-			<div class="card-body">
-			  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-			</div>
-		  </div>
-		</div>
-		<div class="card">
-		  <div class="card-header">
-			<a class="collapsed card-link" data-toggle="collapse" href="#collapseThree">
-			  Collapsible Group Item #3
-			</a>
-		  </div>
-		  <div id="collapseThree" class="collapse" data-parent="#accordion">
-			<div class="card-body">
-			  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-			</div>
-		  </div>
-		</div>
-	  </div>
+<div class="form-group">
+	<label>
+		Text:
+		<input type="text" name="text" id="text" class="form-control">
+	</label>
+</div>
 	
 		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 		  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>

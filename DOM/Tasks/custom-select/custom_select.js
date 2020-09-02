@@ -147,11 +147,11 @@ class CustomSearch extends HTMLElement {
 			options.forEach(option => {
 				// hide options that don't match regexp
 				if(!regexp.test(option.textContent)){
-					option.hidden = true
+					option.style.display = 'none'
 				} 
 				// show options that match and save them additionally to an array
 				else {
-					option.hidden = false
+					option.style.display = 'block'
 					matchedOptions.push(option)
 				}
 			})
