@@ -112,7 +112,7 @@ class CustomSearch extends HTMLElement {
 		function finishInput(){
 			$itemsContainer.classList.add('closed')
 			$host.blur()
-			document.removeEventListener('mousedown', handleClick)
+			document.removeEventListener('mouseup', handleClick)
 		}
 
 		/** Returns `true` is input is valid, `false` - otherwise */
@@ -194,7 +194,7 @@ class CustomSearch extends HTMLElement {
 			}
 
 			// add handler
-			document.addEventListener('mousedown', handleClick)
+			document.addEventListener('mouseup', handleClick)
 		})
 
 		$input.addEventListener('focusout', e => {
