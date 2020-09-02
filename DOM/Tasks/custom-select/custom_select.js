@@ -99,7 +99,6 @@ class CustomSearch extends HTMLElement {
 			// not an option but still our element
 			else {
 				if(e.target === $host){
-					inputFinished = false
 					$host.focus()
 				}
 
