@@ -1,471 +1,826 @@
 # Regular Expressions
 
 - [Regular Expressions](#regular-expressions)
-  - [Symbol classes:](#symbol-classes)
-  - [Flags](#flags)
-  - [Ranges](#ranges)
-  - [QUANTIFIERS](#quantifiers)
-  - [Greedy and lazy](#greedy-and-lazy)
-  - [Capturing groups](#capturing-groups)
-  - [Backreference by number](#backreference-by-number)
-  - [Alternation](#alternation)
+	- [Intro](#intro)
+	- [Symbol classes:](#symbol-classes)
+	- [Flags](#flags)
+	- [Methods](#methods)
+		- [`str.match(regexp)`](#strmatchregexp)
+		- [`str.matchAll(regexp)`](#strmatchallregexp)
+		- [`str.split(regexp|substr, limit)`](#strsplitregexpsubstr-limit)
+		- [`str.search(regexp)`](#strsearchregexp)
+		- [`str.replace(str|regexp, str|func)`](#strreplacestrregexp-strfunc)
+		- [`regexp.test(str)`](#regexpteststr)
+		- [`regexp.exec(str)`](#regexpexecstr)
+	- [Unicode `/u` and `\p{...}`](#unicode-u-and-p)
+	- [Anchors: string start `^` and end `$`](#anchors-string-start--and-end-)
+		- [Multiline mode `/m`](#multiline-mode-m)
+	- [Word boundary, `\b`](#word-boundary-b)
+	- [Escaping](#escaping)
+	- [Sets and ranges `[...]`](#sets-and-ranges-)
+	- [Quantifiers, `+`, `-`, `?` and `{n}`](#quantifiers-----and-n)
+		- [Shorthands for Quantifiers](#shorthands-for-quantifiers)
+	- [Greedy and Lazy quantifiers](#greedy-and-lazy-quantifiers)
+	- [Capturing groups `(...)`](#capturing-groups-)
+		- [Parentheses groups](#parentheses-groups)
+	- [Backreferences in pattern](#backreferences-in-pattern)
+	- [Practice](#practice)
+		- [Filter only digits](#filter-only-digits)
+		- [Find the time](#find-the-time)
+		- [Ellipsis](#ellipsis)
+		- [HTML colors](#html-colors)
+		- [Find all HTML comments](#find-all-html-comments)
+		- [Find all HTML tags](#find-all-html-tags)
+		- [Find all numbers](#find-all-numbers)
+		- [Check MAC-address](#check-mac-address)
+		- [Parse an expression](#parse-an-expression)
 
 ***
+
+## Intro
+
+`RegExp` is a powerful mean of searching and filtering text contents. 
+
+There're 2 ways of defining RegExp:
+
+```js
+// digit + space + symbol of a word (e.g. '1 a')
+
+// 1st way
+const reg1 = /\d\s\w/gi
+
+// 2nd way
+const reg2 = new RegExp('\d\s\w', 'gi')
+```
+
+`new RegExp` lets us pass variables and create `regexp` on the fly.
+
+***
+
 
 
 ## Symbol classes:
 
-* \d 	- digit
-* \s 	- space
-* \w 	- LATIN letter || digit || _ 
-* \D 	- NOT a digit
-* \S 	- NOT a space
-* \W 	- NOT a word character
-* .		- any symbol (except the new line symbol)
+* `\d` 	- digit
+* `\s` 	- space
+* `\w` 	- LATIN letter || digit || _ 
+* `\D` 	- NOT a digit
+* `\S` 	- NOT a space
+* `\W` 	- NOT a word character
+* `.`	- any symbol except `\n` (use `[\s\S]` or `[^]` for literally any character - it says "a space or not a space character")
+
+Examples (if not `/g/` flag is installed, the first match will be returned):
+
+```js
+// digit, space, not a digit
+console.log('HK-47 is the best companion!'.match(/\d\s\D/))	// ['7 i']
+// word symbol * 4, not a word symbol
+console.log('HK-47 is the best companion!'.match(/\w\w\w\w\W/))	// ['best ']
+// any symbol, space, word symbol * 3
+console.log('HK-47 is the best companion!'.match(/.\s\w\w\w/))	// ['s the']
+```
+
+***
+
 
 ## Flags
 
-* g     - global
-* i     - case-insensitive
-* m     - multiline 
-* s     - including the new line symbol
-* u     - unicode support
-* y     - search on the position
+* `g`     - global
+* `i`     - case-insensitive
+* `m`     - multiline 
+* `s`     - dot `.` will include new line character
+* `u`     - unicode support
+* `y`     - search on the position
 
-```javascript
-/\d\s\w/		// digit + space + symbol of a word (e.g. '1 a')
-/CSS\d/			// 'CSS' + digit
-"I love HTML5!".match(/\s\w\w\w\w\d/) 	// ' HTML5'
+Add these flags after the ending **slash `/`**: `/abc/gi`
+
+```js
+// any symbol, word symbol, any symbol, space - global
+console.log('HK-47 is the best companion!'.match(/.\w.\s/g))	// ["-47 ", "the ", "est "]
+// h, k, any symbol * 3 - global, case-insensitive
+console.log('HK-47 is the best companion!'.match(/hk.../ig))	// ["HK-47"]
 ```
+
 ***
 
-Filter only digits
-```javascript
-console.log("+7(903)-123-45-67".match(/\d/g	))			// ["7", "9", "0", "3", "1", "2", "3", "4", "5", "6", "7"]
-console.log("+7(903)-123-45-67".match(/\d/g	).join(''))	// 79031234567
 
-// The second way
+## Methods
 
-// str.replace(reg, template) replaces matches with a template
-console.log(str.replace(/\D/g, ''))		// replace all non-digits with an empty string, leaving only digits
+### `str.match(regexp)`
+
+Returns an **array** with the result depending on **whether** the `/g/` flag is used:
+
+1. Yes - returns an array of matches.
+2. No - returns an array with the first match and **additional properties**:
+   1. **groups**: `undefined` or an object of named capturing groups
+   2. **index**: position of the match
+   3. **input**: full string where you searched
+
+If regexp is a **non-RegExp** object, it is implicitly converted to a RegExp by using `new RegExp(regexp)`.
+
+If **no matches** - `return null`.
+
+```js
+const str = 'apple, orange, 42'
+const reg = /\d\d/i
+
+console.log(str.match(reg))
 ```
+
+![](img/2020-09-09-14-44-45.png)
+
 ***
 
-`$&` pastes all the match
-```javascript
-"Люблю HTML, CSS".replace(/HTML/, "$& и JavaScript")	// "Люблю HTML и JavaScript, CSS"
+
+### `str.matchAll(regexp)`
+
+New upgraded version of `match`. Always used with **`/g/`**. Returns **iterable object** with verbose results.
+
+If **no matches** - returns empty iterator.
+
+```js
+const str = 'apple15, or33ange, 42'
+const reg = /\d\d/ig
+const result = str.matchAll(reg)
+
+// we can gather its values into an array
+const arr = [...result]
+console.log(arr)	// Array of 3 Arrays
+
+// or we loop over it using `for..or`, just remember: it's only iterable once!
 ```
-`$`\` pastes part of of the string **before** the match
-```javascript
-"Люблю HTML, CSS".replace(/HTML/, "$` и JavaScript")	// "Люблю Люблю  и JavaScript, CSS"
-```
-`$'` - **after** the match
-```javascript
-"Люблю HTML, CSS".replace(/HTML/, "$' и JavaScript")	// "Люблю , CSS и JavaScript, CSS"
-```
+
+![](img/2020-09-06-13-33-03.png)
+
+Why **iterable** instead of an array? For optimization as every next value (array) is evaluated only when referred, so if we loop over 100 matches, we can break after 3 and the rest will never be evaluated.
+
 ***
 
-`^word` means the **beginning** of the string, `word$` is the **end**
-```javascript
-console.log(/^Mary/.test("Mary had a little lamb"))			// true, begins with 'Mary'
-console.log(/lamb$/.test("Mary had a little lamb"))			// true, ends with 'lamb'
 
-let goodInput = "12:34";
-let badInput = "12:345";
+### `str.split(regexp|substr, limit)`
 
-let regexp = /^\d\d:\d\d$/;
-console.log( regexp.test(goodInput) ); // true
-console.log( regexp.test(badInput) ); // false, the search seeks a match from the beginning of the string, since it starts with '^'
+Splits the string into array using regexp as a delimiter. 
+
+```js
+const str = '700-54-32'
+const reg = '-'
+
+str.split(reg)	// ["700", "54", "32"]
 ```
+
+```js
+const str = `700,  54, 		32`
+const reg = /,\s*/
+
+str.split(reg)	// ["700", "54", "32"]
+```
+
 ***
 
-`\m` - multiline, `^` and `$` will not only work on the beginning and the end of the text but also on each line
-```javascript
-let str = `1 - one
-2 - two
-3 - three`
 
-console.log(str.match(/^\d/g))		// ["1"]
-console.log(str.match(/^\d/gm))		// ["1", "2", "3"]
-console.log(str.match(/\w$/gm))		// ["e", "o", "e"]
-```
+### `str.search(regexp)`
+
+Returns the position of the match. Only finds the **first** match. Use other means to find all the matches.
+
 ***
 
-We can find the **end of the line** in two ways: with `$` and `\n`
-```javascript
-let str = `1 - one
-2 - two
-3 - three`
 
-console.log(str.match(/$/gm))	// ["", "", ""]	 => 3 matches (3 line endings)
-console.log(str.match(/\n/g))	// ["↵", "↵"]	=> 2 matches (2 new line symbols, also we don't even need the 'm' flag)
+### `str.replace(str|regexp, str|func)`
+
+Common and useful method for searching and replacing.
+
+When the first argument of replace is a string, it only replaces the first match!
+
+```js
+// replace a dash by a colon
+console.log('12-34-56'.replace("-", ":"))	// 12:34-56
+console.log('12-34-56'.replace(/-/g, ":"))	// 12:34:56
 ```
+
 ***
 
-`\b` - **boundary** of the word, triggers when to the one side is '\w' and to the other is not, *only works for latin letters*.
-```javascript
-console.log('Hello, world'.match(/\bHello\b/))	// ["Hello", index: 0, input: "Hello, world", groups: undefined]
-console.log('HelloWorld'.match(/\bHello\b/))	// null
+Replacement can be done using **parentheses groups**, refer to them using `$1, $2, ... ` as their numbers.
 
-// also works with digits
+```js
+const str = 'John Bull'
+const reg = /(\w+) (\w+)/
 
-console.log('8-21-173-j48'.match(/\b\d\d\b/g))		// ["21"]
+console.log(str.replace(reg, 'New string: $2, $1!'))
+// New string: Bull, John!
 ```
+
 ***
 
-https://learn.javascript.ru/regexp-boundary#naydite-vremya
-```javascript
-console.log('Завтрак в 09:00 в комнате 123:456'.match(/\b\d\d:\d\d\b/g))	// ["09:00"]
-```
-***
 
-We use `\` to escape all special characters from the set: [ \ ^ $ . | ? * + ( )
-```javascript
-console.log('/'.match(/\//))                // ["/"]
-console.log('function g()'.match(/g\(\)/))  // ["g()"]
-```
-***
+### `regexp.test(str)`
 
-If we use **`new RegExp`**, we need another kind of excaping:
-```javascript
-console.log('Chapter 5.1'.match(/\d.\d/))	// ["5.1"]
-let regexp = new RegExp("\d\.\d")
-console.log('Chapter 5.1'.match(regexp))	// null => '\' symbols in a string need escaping or they'll be deleted (if not \n, \t, ... is found)
-regexp = new RegExp('\\d\\.\\d')
-console.log('Chapter 5.1'.match(regexp))	// ["5.1"]
-// or we can use String.raw(), which means "understand the string literally, without escaping the backslashes"
-regexp = new RegExp(String.raw`\d\.\d`)		// Attention! No parentheses after String.raw!
-console.log('Chapter 5.1'.match(regexp))	// ["5.1"]
-```
-***
+Return `true/false` depending on whether there's a match in the string or not.
 
-## Ranges 
+If there's the `/g/` flag, further calls to `test(str)` will resume searching `str` starting from `lastIndex`. The `lastIndex` property will continue to increase each time `test()` returns `true`. 
 
-`[aeo]` - seek any element of the given range/set. So `a` OR `e` OR `o` (one element). In `[]` no need to escape `. + ( )` 
-```javascript
-console.log("423-12 d3d3 qw-34a78-7".match(/\d[\w-]\d/g))		// ["423", "3d3", "4a7", "8-7"]
-console.log("Exception 0xAF".match(/x[0-9A-F][0-9A-F]/g))		// ["xAF"]
-console.log("Exception 0xAF".match(/x[0-9A-Fa-f][0-9A-Fa-f]/g))	// ["xce", "xAF"]
-console.log("Exception 0xAF".match(/x[0-9A-Fa-f][0-9A-Fa-f]/g))	// ["xce", "xAF"]
-```
-\w is basically [a-zA-Z0-9], \d is [0-9], etc.
-***
+```js
+const str = 'More about JavaScript at https://javascript.info'
+const reg = /javascript/ig
 
-**Excluding ranges**
-`[^a-z]` - any symbol except of 'a-z' range
-```javascript
-// (email) any symbol except latin, digit, '.', '-', '_' or '@' - error
-console.log('namba1.php-html_css@mail.com'.match(/[^@^.^_^\-^\w]/))		// null => no forbidden symbols
-// (phone number) any symbol except digit, space, '-', parentheses - error
-console.log('+375 (29) 817-68-92'.match(/[^\d^\s^\-^\(^\)^+)]/))		// null => no firbidden symbols
-```
-***
+let result
 
-## QUANTIFIERS
-
-q|meaning
--|-
-{n}|exactly n}
-{n, m}|n to m|
-{n, }|n+
-```javascript
-console.log('I am 12345 years old'.match(/\d{3}/g)) 				// ["123"]
-console.log('I am not 12 but 12345 years old'.match(/\d{2,4}/g)) 	// ["12", "1234"]
-console.log('I am not 12 but 12345 years old'.match(/\d{3,}/g)) 	// ["12345"]
-console.log("+7(903)-123-45-67".match(/\d{1,}/g))					// ["7", "903", "123", "45", "67"]
-```
-
-`*`	- 0 or more, the same as {0, } 
-```javascript
-console.log('100 10 1'.match(/\d0*/g))	// ["100", "10", "1"]
-console.log('100 10 1'.match(/\d0+/g))	// ["100", "10"] 
-```
-`+` - 1+ of 'n', the same as {1, }
-```javascript
-console.log('+7(903)-123-45-67'.match(/\d+/g))	// ["7", "903", "123", "45", "67"]
-```
-`?` - 0 or 1, means 'it may be present or not', the same as {0, 1}
-```javascript
-console.log('color colour'.match(/colou?r/g))   // ["color", "colour"]
-```
-
-RegExp for decimal fractions
-```javascript
-console.log('lol 0.5435 12.0'.match(/\d+\.\d+/g))		// ["0.5435", "12.0"]
-// another version
-console.log('str 0.5435 12.0'.match(/\d+\.[1-9]\d+/g))	// ["0.5435"] => 12.0 and other 'point zero' numbers excluded
-```
-**html tags**
-```javascript
-console.log('<body>...</body>'.match(/<\/?[a-z][a-z0-9]*>/g))	// ["<body>", "</body>"] => '<', optional '/', a letter, zero or more letters of numbers, '>'
-console.log('<h1>...</h2>'.match(/<\/?[a-z][a-z0-9]*>/g))		// ["<h1>", "</h2>"]
-```
-***
-
-https://learn.javascript.ru/regexp-quantifiers#kak-nayti-mnogotochie
-```javascript
-let regexp = /\.{3,}/g;
-console.log( "Привет!... Как дела?.....".match(regexp) ); // ..., .....
-```
-
-https://learn.javascript.ru/regexp-quantifiers#regulyarnoe-vyrazhenie-dlya-html-tsvetov
-```javascript
-let regexp = /#[a-f0-9]{6}\b/gi	// \b is needed to drop #12345678 or we'll get '#123456' match (cropped number)
-let str = "color:#121212; background-color:#AA00ef bad-colors:f#fddee #fd2 #12345678";
-console.log( str.match(regexp) )      // #121212,#AA00ef
-```
-***
-
-## Greedy and lazy
-
-**Greedy** is the default behaviour pattern. The regexp will repeat the quantifier as much as it can.
-
-```javascript
-console.log('a "witch" and her "broom" is one'.match(/".+"/g))	// [""witch" and her "broom""]
-```
-The engine didn't choose to return `witch`, instead it returned the whole string, bc `.` means 'any symbol' including `"`. So it seeks till the end of the line, then realizes that the line has ended and the ending wasn't found, so it take steps back to find `"`. 
-
-
-**Lazy** is the opposite principle: take as less as possible to satisfy the condition. Use `?` _after a quantifier_ to turn this mode on.
-```javascript
-console.log('a "witch" and her "broom" is one'.match(/".+?"/g))	// [""witch"", ""broom""]
-```
-Now it worked fine: the engine had to find 1+ entries of any symbol after `"`. As soon as it found the first one, the others are taken reluctantly, just until the closing `"` is found. 
-
-Alternative solution: seek `"`, then {1+} of `non-"`, then `"`. The first match will be returned. 
-```javascript
-console.log('a "witch" and her "broom" is one'.match(/"[^"]+"/g))
-```
-Laziness get only those quantifiers that get `?`
-```javascript 
-console.log('123 455'.match(/\d+ \d+?/g))	// ["123 4"] => the second but not the first
-```
-***
-Task: find `<a href="..." class="doc">` for arbitrary `href`
-```javascript
-console.log('<a href="link1" class="wrong">... <p style="" class="doc"> <a href="https://ex.ua" class="doc">'.match(/<a href="[^"]*" class="doc">/g))	// ["<a href="https://ex.ua" class="doc">"]
-```
-Some more examples
-```javascript
-console.log("123 456 789".match(/\d+? \d+?/g))		// ["123 4", "56 7"]
-console.log("123 456 789".match(/\d+? \d+? \d+?/g))	// ["123 456 7"]
-```
-https://learn.javascript.ru/regexp-greedy-and-lazy#poisk-html-kommentariev
-```javascript
-let regexp = /<!--.*?-->/gs;
-let str = `... <!-- My -- comment
- test --> ..  <!----> ..
-`;
-console.log(str.match(regexp)); // '<!-- My -- comment \n test -->', '<!---->'
-// don't forget /s to be able to search the matches through the line break!
-```
-https://learn.javascript.ru/regexp-greedy-and-lazy#poisk-html-tegov
-```javascript
-let regexp = /<[/]*[^>]+>/g;
-let str = '<> <a href="/"> <input type="radio" checked> <b>';
-console.log( str.match(regexp) ); // '<a href="/">', '<input type="radio" checked>', '<b>'
-```
-***
-
-## Capturing groups
-
-Using `()` we can apply quantifiers to the whole group of elements rather than a single element.
-
-`go+` would match `go`, `gooo`, `gooooooo`, etc. Means "g and 1 or more 'o'"
-```javascript
-console.log('Gogo goooooo'.match(/go+/gi))		// ["go", "go", "goooooo"]
-```
-
-`(go)+` would match `go`, `gogo`, `gogogo`, etc. Means "1 or more 'go'" 
-```javascript
-console.log('Gogo goooooo'.match(/(go)+/gi))	// ["Gogo", "go"]
-```
-***
-
-Task: get domain.
-
-Solution: 1 or more groups of words and hyphens, followed by dot and followed by another word
-```javascript
-console.log('my-site.com.ua error!@#$ ыаыаы.на'.match(/([\w-]+\.)+\w+/g))	// ["my-site.com.ua "]
-```
-***
-
-Task: get email.
-
-Solution: the template is `name@domain`. The name includes `\w`, `\.`, `-`.
-
-```javascript
-console.log('email@my-site.com.ua wrong@no'.match(/[\w\.-]+@([\w-]+\.)+\w+/g))	// ["email@my-site.com.ua"]
-```
-***
-
-We can use `()` to get the content of capturing groups. Using `.match()` without `/g` flag puts the result to the 1st index and the capturing groups to the rest of the indices. 
-```javascript
-let str = '<p>Hello, world!</p>'
-let tag = str.match(/<(\w)>/)
-console.log(tag)	// ["<p>", "p", index: 0, input: "<p>Hello, world!</p>", groups: undefined]
-console.log(tag[0])	// <p>
-console.log(tag[1])	// p
-```
-
-**Nested groups**
-
-```javascript
-let str = '<span class="my">';
-let regexp = /<(([a-z]+)\s*([^>]*))>/;
-let result = str.match(regexp);
-
-console.log(result)		// ["<span class="my">", "span class="my"", "span", "class="my"", index: 0, input: "<span class="my">", groups: undefined]
-console.log(result[0]); // <span class="my">
-console.log(result[1]); // span class="my"
-console.log(result[2]); // span
-console.log(result[3]); // class="my"
-```
-***
-
-We can **exclude** the groups we are not interested in from the resulting match by adding `?:` at the beginning of the group:
-```javascript
-console.log('Gogogo John'.match(/(?:go)+ (\w+)/i))	// ["Gogogo John", "John", index: 0, input: "Gogogo John", groups: undefined]
-```
-We excluded the first group from the match. Otherwise we would have had `["Gogogo John", "go", "John", index: 0, input: "Gogogo John", groups: undefined]`
-***
-
-https://learn.javascript.ru/regexp-groups#nayti-tsvet-v-formate-abc-ili-abcdef
-
-Hex colors: 3 and 6-digit.
-
-Solution: find a group of 3 hex-symbols and then double it optionally {1 or 2}.
-
-```javascript
-let regexp = /#([0-9A-F]{3}){1,2}\b/gi;	// don't forget \b to drop `#abcd`!
-let str = "color: #3f3; background-color: #AA00ef; and: #abcd";
-console.log(str.match(regexp)); // #3f3 #AA00ef
-```
-***
-
-https://learn.javascript.ru/regexp-groups#nayti-vse-chisla
-
-Decimal numbers. 
-
-```javascript
-let regexp = /(-?\d+)(\.\d+)?/g;
-let str = "-1.5 0 2 -123.4.";
-console.log(str.match(regexp)); // ["-1.5", "0", "2", "-123.4"]
-```
-***
-
-https://learn.javascript.ru/regexp-groups#razobrat-vyrazhenie
-
-Parse an expression.
-
-```javascript
-let [a, op, b] = parse("1.2 * 3.4");
-console.log(a); // 1.2
-console.log(op); // *
-console.log(b); // 3.4
-
-function parse(expr){
-	let match = expr.match(/\s*(-?\d+(?:\.\d+)?)\s*([-+/*])\s*(-?\d+(?:\.\d+)?)\s*/)
-	match.shift()	// drop the full match in [0]
-	return match
+while (result = reg.test(str)) {
+  console.log(result)
+  console.dir(`lastIndex: ${reg.lastIndex}`)
 }
 ```
+
+![](img/2020-09-06-20-03-26.png)
+
+In the end, `result === false` and `reg.lastIndex === 0`.
+
 ***
 
-https://learn.javascript.ru/regexp-groups#proverte-mac-adres
 
-MAC
+### `regexp.exec(str)`
 
-```javascript
-let regexp = /((?:[0-9A-F]){2}:){5}[0-9A-F]/;
-console.log( regexp.test('01:32:54:67:89:AB') ); 	// true
-console.log( regexp.test('0132546789AB') ); 		// false (нет двоеточий)
-console.log( regexp.test('01:32:54:67:89') ); 		// false (5 чисел, должно быть 6)
-console.log( regexp.test('01:32:54:67:89:ZZ') ) 	// false (ZZ в конце строки)
-```
+1. No `/g/` flag === `str.match(regexp)`
+2. The `/g/` flag is present: returns the **first match** and saves the position **immediately after it** in the property `regexp.lastIndex`. You need to loop over it to get all the matches. 
+
 ***
 
-## Backreference by number
+**No /g/** :
 
-Task: find strings in either `"..."` or `'...'`. We need to get the same opening and closing quotations marks, not to mix them!
+```js
+const str = 'More about JavaScript at https://javascript.info'
+const reg = /javascript/i
 
-Solution: use referencing groups by number.
-
-```javascript
-console.log(`He said: "She's the one!".`.match(/(['"])(.*?)\1/g))	// [""She's the one!""]\
+console.log(reg.exec(str))	// array with data
+console.log(reg.lastIndex)	// 0
 ```
-Here's what's going on:
 
-1. The engine finds the first match from the possible options (`'` or `"`) and remembers it as "the first group". In our case it's `"`.
-2. Seeks for any other possible symbol (`.*?`).
-3. Finishes with the symbol from "the first group" (`"` in our case).
+![](img/2020-09-06-20-07-44.png)
+
 ***
 
-## Alternation
+**There is /g/** :
 
-`|` means 'OR'. 
+```js
+const str = 'More about JavaScript at https://javascript.info'
+const reg = /javascript/ig
 
-```javascript
-console.log('Java, then HTML, then JavaScript'.match(/html|php|java(script)?/gi))	// ["Java", "HTML", "JavaScript"]
+console.log(reg.exec(str))	// array with data
+console.log(reg.lastIndex)	// 21
 ```
 
-It is similar to `[]` but more powerful:
-```javascript
-/gr[a|e]y/ === /gr[ae]y/
-/gra|ey/ 			// means `gra` or `ey`
-/love html|css/		// love html || css
-/love (html|css)/	// love html || love css
-```
+![](img/2020-09-06-20-07-13.png)
+
 ***
 
-https://learn.javascript.ru/regexp-alternation#primer-shablon-dlya-vremeni
+**To get all the matches**, we need to loop over `exec` until it returns `null`.
 
-Task: strict time template (23:00 format)
+```js
+const str = 'More about JavaScript at https://javascript.info'
+const reg = /javascript/ig
 
-```javascript
-console.log('00:00 10:10 23:59 25:99 01:87 1:2'.match(/([01]\d|2[0-3]):[0-5]\d/g))	// ["00:00", "10:10", "23:59"]
+let result
+
+while (result = reg.exec(str)) {
+  console.log(result)
+  console.dir(reg.lastIndex)
+}
 ```
+
+![](img/2020-09-06-20-11-07.png)
+
+In the end, when there's no matches, `result === null` and `reg.lastIndex === 0`. 
+
 ***
 
-https://learn.javascript.ru/regexp-alternation#naydite-yazyki-programmirovaniya
+Because `test` and `exec` both use `lastIndex` to define from where to start, this can lead to unexpected results when called multiple times:
 
-Programming languages: find all suggested
+```js
+const str = 'More about JavaScript at https://javascript.info'
+const reg = /javascript/ig
 
-```javascript
-let regexp = /Java(Script)?|PHP|C(\+\+)?/g;
-console.log("Java JavaScript PHP C++ C".match(regexp)); // ["Java", "JavaScript", "PHP", "C++", "C"]
-
-// or just set the longer words first
-
-regexp = /JavaScript|Java|PHP|C\+\+|C/g
-console.log("Java JavaScript PHP C++ C".match(regexp))	// ["Java", "JavaScript", "PHP", "C++", "C"]
+console.log(reg.test(str))    // true
+console.log(reg.test(str))    // true
+console.log(reg.test(str))    // false
 ```
+
+```js
+const str = 'More about JavaScript at https://javascript.info'
+const reg = /javascript/ig
+
+console.log(reg.exec(str))    // array, index == 11
+console.log(reg.exec(str))    // array, index == 33
+console.log(reg.exec(str))    // null
+```
+
+Either set `reg.lastIndex = 0` explicitly or use other methods (like `match`) to get consistent results with each call.
+
 ***
 
- https://learn.javascript.ru/regexp-alternation#naydite-pary-bb-kodov
 
- BB-codes
+
+## Unicode `/u` and `\p{...}`
+
+JS uses 1- or 2-byte Unicode. Some characters didn't have a place in the 65k list of utf16. 
+
+Some languages treat 4-bytes symbols incorrectly, thinking it's 2 of 2-bytes symbols. To fix this in `regexp`, use the `/u` flag.
+
+When we add flag `/u`, we can also use `\p{}` notation for `\p{Letter}` or `\p{L}`, `\p{Number}` or `\p{N}`, etc.
+
+```js
+let str = "A ბ ㄱ"	// a string with utf32 letters
+console.log(str.match(/\p{L}/gu))	// ["A", "ბ", "ㄱ"]
+console.log(str.match(/\p{L}/gu))	// null (no matches, as there's no flag "u")
+
+str = `Hello Привет 你好 123_456`
+console.log(str.match(/\p{sc=Han}/gu))	// 你,好 - Chinese hieroglyphs
+
+str = `Prices: $2, €1, ¥9`
+console.log(str.match(/\p{Sc}\d/gu))	// currency
+```
+
+***
+
+
+
+## Anchors: string start `^` and end `$`
+
+`/`**`^a`**`bc/` - string starts with 'a'
+
+`/ab`**`c$`**/` - string ends with 'c'
+
+These anchors don't work anywhere except their places: at the beginning and the end of the string.
+
+```js
+let str = "I love Mary"
+
+console.log(/mary/i.test(str))		// true
+console.log(/^mary/i.test(str))		// false
+console.log(/mary$/i.test(str))		// true
+
+str = "Mary is beautiful. I love her"
+console.log(/^mary/i.test(str))		// true
+```
+
+Test for **full match** using both `^` and `$` with anything you need between them:
+
+```js
+console.log(/^bet$/.test('bet'))		// true
+console.log(/^bet$/.test('1xbet'))		// false
+console.log(/^bet$/.test('bet bet'))	// false
+```
+
+***
+
+
+### Multiline mode `/m`
+
+**Only affects the behavior of `^` and `$`.**
+
+In the multiline mode they match not only at the beginning and the end of the string, but also at start/end of each line.
+
+```js
+const str = `1st place: Winnie
+2nd place: Piglet
+3rd place: Eeyore`
+
+// only the beginnind and the end of the string
+console.log(str.match(/^\d/g))	// ["1"]
+// the beginning and the end of each line
+console.log(str.match(/^\d/gm))	// ["1", "2", "3"]
+```
+
+***
+
+
+
+## Word boundary, `\b`
+
+Word boundary lies:
+
+- at the beginning of the string
+- at the end of the string
+- between a word character `\w` and **not** a word character `\W`
+
+As it tests for `\w` and `\W`, it only works for **latin alphabet**.
+
+```js
+console.log('Hello, Java'.match(/\bjava\b/ig))	// ["Java"]
+console.log('Hello, JavaScript'.match(/\bjava\b/ig))	// null
+
+// works with digits as well
+console.log('(057)755-65-75'.match(/\b\d\d\d\b/g))	// ["057", "755"]
+```
+
+***
+
+
+
+## Escaping
+
+Backslash **`\`** is used for **reversing** the character's special meaning and makes them work as regular symbols **or** vise versa - make regular symbols work in a special way. 
+
+List of special symbols need escaping to be treated literally: `[ \ ^ $ . | ? * + ( )`
+
+```js
+// stop 'dot' working as 'any symbol'
+console.log("Chapter 5.1: 55x55".match(/\d\.\d/g))	// ["5.1"]
+// without escaping
+console.log("Chapter 5.1: 55x55".match(/\d.\d/g))	// ["5.1", "5x5"]
+```
+
+```js
+console.log("(057)-700-44-55".match(/\(\d\d\d\)/g))	// ["(057)"]
+```
+
+`/` needs escaping when used in the `/\//` notation and doesn't need when used in `new RegExp('/')`. 
+
+But in `new RegExp` we need to **double** backslash everything we want to bachslash. 
+
+```js
+console.log(new RegExp('\d').test('HK-47'))		// false
+console.log(new RegExp('\\d').test('HK-47'))	// true
+```
+
+This is due to strings don't have special meanings for `\d` or `\z`, they only know `\n', `\t` and so on, so they assume this to be a mistake and remove single backslash. 
+
+***
+
+
+
+## Sets and ranges `[...]`
+
+Square brackets say "search any character among given". Adding **caret `^`** at the beginning **inverts** the pattern.
+
+`[abc]` tests positive for any of 'a', 'b' or 'c'. 
+
+`[^abc]` tests positive for anything **except** 'a', 'b' or 'c'.
+
+```js
+console.log('Let the cat eat'.match(/[ae]t/g))	// ["et", "at", "at"]
+```
+
+Can also contain **ranges**: `[a-z]`, `[A-Z]`, `[0-9]`, etc.
+
+```js
+console.log("Exception 0xAF".match(/x[0-9A-F][0-9A-F]/g) ); // xAF)
+```
+
+Here `[0-9A-F]` has two ranges: it searches for a character that is either a digit from 0 to 9 or a letter from A to F.
+
+If we’d like to look for lowercase letters as well, we can add the range `a-f`: `[0-9A-Fa-f]`. Or add the flag `i`.
+
+***
+
+Character classes are **shorthands** for certain character sets
+
+- `\d` – is the same as `[0-9]`
+- `\w` – is the same as `[a-zA-Z0-9_]`
+- `\s` – is the same as `[\t\n\v\f\r ]`
+- for non-latin alphabets, we can simply select entities we want: `[а-я]`
+- `[^0-9]` == `[^\d]` == `\D`
+
+***
+
+All characters are treated literally **unless** they have some special meaning specifically for **square brackets**.
+
+```js
+// No need to escape
+console.log("1 + 2 - 3".match(/[-().^+]/g)) // [+, -]
+
+// but you can still escape them with no harm:
+console.log("1 + 2 - 3".match(/[\-\(\)\.\^\+]/g)) // [+, -]
+```
+
+***
+
+
+
+## Quantifiers, `+`, `-`, `?` and `{n}`
+
+Quantifier are appended to a character || a character class || a [...] set, and specify **how many** we need.
+
+- The exact count: `{5}` - exactly 5 times
+- The range: `{1,5}` - from 1 to 5 times
+- Greater or equal than: `{1,}` - 1+
+
+```js
+// 5 digits
+console.log("I'm 12345 years old".match(/\d{5}/g))	// [12345]
+// 3-5 digits
+console.log("I'm not 12, but 1234 years old".match(/\d{3,5}/))	// [1234]
+// 2 digits - can be found 2 times without repeating characters
+console.log("I'm 12345 years old".match(/\d{2}/g))	// [12, 34]
+```
+
+Task: get all the number groups from a string: `+7(903)-123-45-67`
+
+```js
+console.log('+7(903)-123-45-67'.match(/\d{1,}/g))	// ["7", "903", "123", "45", "67"]
+```
+
+***
+
+
+### Shorthands for Quantifiers
+
+- **`+`** == `{1,}` - "one or more"
+- **`*`** == `{0,}` - "zero or more"
+- **`?`** == `{0,1}` - makes the symbol optional
+
+```js
+console.log("100 10 1".match(/\d0*/g))	// [100, 10, 1]
+console.log("100 10 1".match(/\d0+/g))	// [100, 10]
+console.log("Should I write color or colour?".match(/colou?r/g))	// ["color", "colour"]
+```
+
+More examples: 
+
+```js
+// only decimal numbers
+console.log("0 1 12.345 7890".match(/\d+\.\d+/g))	// ["12.345"]
+
+// opening or closing HTML tag without attributes
+console.log("<h1>Hi!</h1>".match(/<\/?[a-z][a-z0-9]*>/gi))	// ["<h1>", "</h1>"]
+```
+
+***
+
+
+
+## Greedy and Lazy quantifiers
+
+By default, `RegExp` works in the greedy mode.
+
+- **Greedy** quantifiers will repeat **maximum** number of times.
+- **Lazy** ones will repeat **minimum** number of times. 
+
+To make quantifier **lazy**, use **quotation mark `?`** after a quantifier.
+
+```js
+// greedy will take as much as it can
+console.log("12345".match(/\d{1,}/g))	// 12345
+// lazy will take the minimum it should 
+console.log("12345".match(/\d{1,}?/g))	// ["1", "2", "3", "4", "5"]
+
+// get both words in double quotes
+console.log('a "witch" and her "broom" is one'.match(/".+?"/g))	// [""witch"", ""broom""]
+
+// alternative w/o lazy quantifiers - "double quote + not a double quote 1+ times + double quote"
+console.log('a "witch" and her "broom" is one'.match(/"[^"]+"/g))	// [""witch"", ""broom""]
+
+// get '123 4'
+console.log('123 456'.match(/\d+ \d+?/g))	// ["123 4"]
+ ```
+
+Sometimes we can't solve our tasks relying on lazy quantifiers:
+
+```js
+const str1 = '...<a href="link1" class="wrong">... <p style="" class="doc">...'
+const str2 = '...<a href="link1" class="doc">... <a href="link2" class="doc">...'
+const reg = /<a href="[^"]*" class="doc">/g
+const badReg = /<a href=".*?" class="doc">/g	// this lazy quantifier won't always work!
+
+console.log(str1.match(reg))
+console.log(str2.match(reg))
+
+console.log(str1.match(badReg))	// not what we need!
+console.log(str2.match(badReg))
+```
+
+***
+
+
+
+## Capturing groups `(...)`
+
+We can put a pattern inside **parentheses `()`** to apply quantifiers to them and see them as separate items in the result array.
+
+**Example**: get the "gogogo" pattern with an arbitrary number of "go" inside:
+
+```js
+// wrong
+console.log('Gogogo now!'.match(/go+/ig))	// ["Go", "go", "go"]
+// right
+console.log('Gogogo now!'.match(/(go)+/ig))	// ["Gogogo"]
+```
+
+**Example**: domain
+
+```js
+console.log('https://my-site.com.ua'.match(/([\w-]+\.)+\w+/ig))	// ["my-site.com.ua"]
+```
+
+**Example**: email
+
+```js
+console.log('Please @mail me to max.bar-cool@my-site.com.ua. Thank you!'.match(/[-\w.]+@([\w-]+\.)+\w+/ig))	// ["max.bar-cool@my-site.com.ua"]
+```
+
+***
+
+### Parentheses groups
+
+You can refer to different **parentheses groups** by their indices when `str.match(reg)` is used without `/g/`.
+
+- `[0]` - full match
+- `[1]`, `[2]`, etc. - parentheses groups from left to right (by the opening parenthesis)
+
+Example: get both tag and its content:
+
+```js
+const result = `<h1>Hello, world!</h1>`.match(/<([a-z]\w*?)>/i)	
+
+console.log(result)
+console.log(result[0])	// `<h1>` - full match
+console.log(result[1])	// `h1` - the first parentheses group
+```
+
+![](img/2020-09-09-16-45-01.png)
+
+***
+
+Example: get tag and all of its parts:
+
+```js
+console.log('Chech this tag <span class="myclass" id="myid">, dude'.match(/<([a-z][\w-]*)\s*([^>]*)>/i))
+```
+
+![](img/2020-09-09-17-54-22.png)
+
+***
+
+**Optional** groups (with `?`) are always referred in the match, even if their content is going to be `undefined` due to not being present in the match.
+
+***
+
+**Named groups** for easier referencing is made putting `?<name>`immediately after the opening parenthesis.
+
+```js
+console.log("2019-04-30".match(/(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2})/))
+```
+
+![](img/2020-09-10-00-03-12.png)
+
+Several dates:
+
+```js
+const iter = "2019-04-30, 2020-01-01".matchAll(/(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2})/g)
+
+console.log(...iter)
+```
+
+![](img/2020-09-10-00-02-21.png)
+
+***
+
+`str.replace(reg, replacement)` uses parentheses groups for replacement. See the [str.replace()](#strreplacestrregexp-strfunc) chapter for details.
+
+***
+
+Sometimes we need parentheses groups but don't want them in the resulting array. To **exclude** them, add **`?:`** at the beginning.
+
+```js
+console.log("Gogogo John!".match(/(?:go)+ (\w+)/i))
+```
+
+![](img/2020-09-10-00-00-39.png)
+
+***
+
+
+
+## Backreferences in pattern 
+
+
+
+***
+
+
+
+## Practice
+
+### Filter only digits
 
 ```javascript
-let str = `
-  [b]привет![/b]
-  [quote]
-    [url]http://ya.ru[/url]
-  [/quote]
-  [b][b]error[/b][/b]
+// first way - simply finlter only digits
+const str = "+7(903)-123-45-67".match(/\d/g	)
+// ["7", "9", "0", "3", "1", "2", "3", "4", "5", "6", "7"]
+console.log(str.join(''))	// 79031234567
+
+// second way - replace non-digits with an empty string
+console.log(str.replace(/\D/g, '')	// 79031234567
+```
+
+***
+
+
+### Find the time
+
+https://javascript.info/regexp-character-sets-and-ranges#find-the-time-as-hh-mm-or-hh-mm
+
+```js
+console.log("Breakfast at 09:00. Dinner at 21-30".match(/\d\d[:-]\d\d/g))	// ["09:00", "21-30"]
+```
+
+***
+
+
+### Ellipsis
+
+https://javascript.info/regexp-quantifiers#how-to-find-an-ellipsis
+
+```js
+console.log("Hello!... How goes?.....".match(/\.{3,}/g))	// ["...", "....."]
+```
+
+***
+
+
+### HTML colors
+
+https://javascript.info/regexp-groups#find-color-in-the-format-abc-or-abcdef
+
+```js
+console.log("color: #3f3; background-color:#AA00ef bad-colors:f#fddee #12345678".match(/#([0-9A-F]{3}){1,2}\b/gi))	// ["#3f3", "#AA00ef"]
+```
+
+***
+
+
+### Find all HTML comments
+
+https://javascript.info/regexp-greedy-and-lazy#find-html-comments
+
+```js
+const reg = /<!--.*?-->/gs	// watch for the `/s` flag!
+const str = `... <!-- My -- comment
+ test --> ..  <!----> ..
 `
-let regexp = /\[(b|url|quote)\].*?\[\/\1\]/gs
-console.log( str.match(regexp) ); // [url]http://ya.ru[/url]
+console.log(str.match(reg))
 ```
+
 ***
 
-https://learn.javascript.ru/regexp-alternation#naydite-ves-teg
 
-Style
+### Find all HTML tags
 
-```javascript
-let regexp = /<style(>|\s.*?>)/g;
-console.log( '<style> <styler> <style test="...">'.match(regexp) );	// ["<style>", "<style test="...">"]
+https://javascript.info/regexp-greedy-and-lazy#find-html-tags
+
+```js
+const reg = /<\/?[^<>]+>/g
+const str = `<> <a href="/"> <input type="radio" checked> <b>`
+console.log(str.match(reg))
 ```
+
+***
+
+
+### Find all numbers
+
+https://javascript.info/regexp-groups#find-all-numbers
+
+```js
+console.log("-1.5 0 2 -123.4.".match(/(?<sign>-?)(?<integer>\d+)(?:\.(?<fractional>\d+))?/g))	// [-1.5, 0, 2, -123.4]
+```
+
+![](img/2020-09-10-00-33-44.png)
+
+***
+
+
+### Check MAC-address
+
+https://javascript.info/regexp-groups#check-mac-address
+
+```js
+const regexp = /[a-f0-9]{2}(:[a-f0-9]{2}){5}/i
+
+console.log( regexp.test('01:32:54:67:89:AB') )	// true
+console.log( regexp.test('0132546789AB') )		// false (no colons)
+console.log( regexp.test('01:32:54:67:89') )	// false (5 numbers, must be 6)
+console.log( regexp.test('01:32:54:67:89:ZZ') )	// false (ZZ ad the end)
+```
+
+***
+
+
+### Parse an expression
+
+https://javascript.info/regexp-groups#parse-an-expression
+
+```js
+function parse(str){
+	const result = str.match(/\s*((-?)(\d+)(?:\.(\d+))?)\s*(?<operator>[-+*/])\s*((-?)(\d+)(?:\.(\d+))?)\s*/)
+	return [result[1], result[5], result[6]]
+}
+
+let [a, op, b] = parse("1.2 * 3.4")
+
+console.log(a)	// 1.2
+console.log(op)	// *
+console.log(b)	// 3.4
+```
+
+***
 
 
