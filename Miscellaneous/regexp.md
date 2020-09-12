@@ -15,7 +15,7 @@
 	- [Unicode `/u` and `\p{...}`](#unicode-u-and-p)
 	- [Anchors: string start `^` and end `$`](#anchors-string-start--and-end-)
 		- [Multiline mode `/m`](#multiline-mode-m)
-	- [Word boundary, `\b`](#word-boundary-b)
+	- [Word boundary `\b`](#word-boundary-b)
 	- [Escaping](#escaping)
 	- [Sets and ranges `[...]`](#sets-and-ranges-)
 	- [Quantifiers, `+`, `-`, `?` and `{n}`](#quantifiers-----and-n)
@@ -23,7 +23,11 @@
 	- [Greedy and Lazy quantifiers](#greedy-and-lazy-quantifiers)
 	- [Capturing groups `(...)`](#capturing-groups-)
 		- [Parentheses groups](#parentheses-groups)
-	- [Backreferences in pattern](#backreferences-in-pattern)
+		- [Backreferences in pattern](#backreferences-in-pattern)
+	- [Alternation `|`](#alternation-)
+	- [Lookaround](#lookaround)
+		- [Lookahead](#lookahead)
+		- [Lookbehind](#lookbehind)
 	- [Practice](#practice)
 		- [Filter only digits](#filter-only-digits)
 		- [Find the time](#find-the-time)
@@ -34,6 +38,9 @@
 		- [Find all numbers](#find-all-numbers)
 		- [Check MAC-address](#check-mac-address)
 		- [Parse an expression](#parse-an-expression)
+		- [BB-tags](#bb-tags)
+		- [Find full tag](#find-full-tag)
+		- [Non-negative integers](#non-negative-integers)
 
 ***
 
@@ -393,7 +400,7 @@ console.log(str.match(/^\d/gm))	// ["1", "2", "3"]
 
 
 
-## Word boundary, `\b`
+## Word boundary `\b`
 
 Word boundary lies:
 
@@ -410,6 +417,17 @@ console.log('Hello, JavaScript'.match(/\bjava\b/ig))	// null
 // works with digits as well
 console.log('(057)755-65-75'.match(/\b\d\d\d\b/g))	// ["057", "755"]
 ```
+
+***
+
+Use **`\B` (no boundary)** to find a pattern inside another word:
+
+```js
+console.log(...('My grandmother rocks, and everybody loves her!'.matchAll(/\Band\B/g)))
+// the only match is inside another word
+```
+
+![](img/2020-09-10-09-48-27.png)
 
 ***
 
@@ -689,9 +707,80 @@ console.log("Gogogo John!".match(/(?:go)+ (\w+)/i))
 
 
 
-## Backreferences in pattern 
+### Backreferences in pattern 
+
+We can reference brackets groups by their number or names:
+
+```js
+console.log('adda abceec'.match(/([abc])([de])\2\1/g))	// ["adda", "ceec"]
+```
+
+Here we search for the first mathing character from the first group (`[abc]`) - it's `a`. It is remembered under the name `\1`. Then we get a match in the second group (`[de]`) - it happends to be `d` and gets remembered as `\2`. Then we refer to these names whenever we want. 
+
+We can also give them names to refer to them later using `\k<name>`
+
+```js
+console.log(`He said: "She's the one!".`.match(/(?<quote>['"])(.*?)\k<quote>/g))	// "She's the one!"
+```
+
+***
 
 
+
+## Alternation `|`
+
+Logical **OR**, gives the possibility to choose not between separate characters but between expressions:
+
+```js
+// find programming languages: Java JavaScript PHP C++ C
+console.log("Java JavaScript PHP C++ C".match(/java(script)?|php|c(\+\+)?/gi))
+// ["Java", "JavaScript", "PHP", "C++", "C"]
+
+
+console.log("First HTML appeared, then CSS, then JavaScript".match(/html|css|java(script)?/ig))
+// ["HTML", "CSS", "JavaScript"]
+
+// correct time in the 24h format
+console.log('00:00 10:10 23:59 25:99 1:2'.match(/(?<hours>[01]\d|2[0-3]):(?<minutes>[0-5]\d)/g))
+// ["00:00", "10:10", "23:59"]
+```
+
+***
+
+
+
+## Lookaround
+
+### Lookahead
+
+Sometimes we need to find only those matches for a pattern that are followed or preceeded by another pattern.
+
+The syntax is: `X(?=Y)(?=Z)...`, it means "look for `X`, but match only if immediately followed by `Y` immediately followed by `Z`".
+
+```js
+console.log("1 turkey costs 30€. It's 2 times more than a year ago.".match(/\d+(?=€)/g))
+// ["30"]
+```
+
+When we look for `X(?=Y)`, the regular expression engine finds `X` and then checks if there’s `Y` immediately after it. If it’s not so, then the potential match is skipped, and the search continues.
+
+**Negative lookahead**: `X(?!Y)` means "search `X`, but only if **not** followed by `Y`".
+
+***
+
+
+### Lookbehind
+
+Positive: `(?<=Y)X` - matches `X`, but only if there’s `Y` before it.
+
+Negative: `(?<!Y)X` - matches `X`, but only if there’s no `Y` before it.
+
+```js
+console.log("1 turkey costs $30".match(/(?<=\$)\d+/))
+// 30 (skipped the sole number)
+console.log("1 turkey costs $30".match(/(?<!\$)\d+/))
+// 1 (skipped the price)
+```
 
 ***
 
@@ -718,8 +807,11 @@ console.log(str.replace(/\D/g, '')	// 79031234567
 
 https://javascript.info/regexp-character-sets-and-ranges#find-the-time-as-hh-mm-or-hh-mm
 
+**Complete** solution: 
+
 ```js
-console.log("Breakfast at 09:00. Dinner at 21-30".match(/\d\d[:-]\d\d/g))	// ["09:00", "21-30"]
+console.log('00:00 10:10 23:59 25:99 1:2'.match(/(?<hours>[01]\d|2[0-3]):(?<minutes>[0-5]\d)/g))
+// ["00:00", "10:10", "23:59"]
 ```
 
 ***
@@ -824,3 +916,35 @@ console.log(b)	// 3.4
 ***
 
 
+### BB-tags
+
+https://javascript.info/regexp-alternation#find-bbtag-pairs
+
+```js
+console.log("..[url][b]http://google.com[/b][/url]..".match(/(\[(?<tag>url|b|quote)\]).*?\[\/\k<tag>\]/gis))
+// [url][b]http://google.com[/b][/url]
+```
+
+***
+
+
+### Find full tag
+
+https://javascript.info/regexp-alternation#find-the-full-tag
+
+```js
+console.log('<style> <styler> <style test="...">'.match(/<style(\s[^>]*)?>/g))
+// ["<style>", "<style test="...">"]
+```
+
+***
+
+
+### Non-negative integers
+
+https://javascript.info/regexp-lookahead-lookbehind#find-non-negative-integers
+
+```js
+console.log("0 12 -5 123 -18".match(/(?<!-)(?<!\d)\d+/g))
+// ["0", "12", "123", "8"]
+```

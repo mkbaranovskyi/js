@@ -5,6 +5,7 @@
   - [Features](#features)
   - [Containers](#containers)
   - [Grid](#grid)
+    - [col](#col)
   - [Text/Typography](#texttypography)
   - [Colors](#colors)
   - [Tables](#tables)
@@ -23,8 +24,14 @@
   - [Navigation Bar](#navigation-bar)
   - [Forms](#forms)
   - [Inputs](#inputs)
-    - [`col`](#col)
-    - [`row`](#row)
+  - [Input Groups](#input-groups)
+  - [Custom Forms](#custom-forms)
+  - [Carousel](#carousel)
+  - [Modal](#modal)
+  - [Tooltip](#tooltip)
+  - [Scrollspy](#scrollspy)
+  - [Utilities](#utilities)
+  - [Media Objects](#media-objects)
 
 ***
 
@@ -104,6 +111,8 @@ All columns within a row will have **equal width** unless the opposite is explic
 
 Three equal columns:
 
+![](img/2020-08-29-14-36-39.png)
+
 ```html
 <div class="container">
   <div class="row">
@@ -120,11 +129,11 @@ Three equal columns:
 </div>
 ```
 
-![](img/2020-08-29-14-36-39.png)
-
 ***
 
 Two unequal columns: 
+
+![](img/2020-08-29-14-37-11.png)
 
 ```html
 <div class="container">
@@ -135,7 +144,64 @@ Two unequal columns:
 </div>
 ```
 
-![](img/2020-08-29-14-37-11.png)
+***
+
+Nested Columns:
+
+![](img/2020-09-04-00-11-11.png)
+
+```html
+<div class="row">
+  <div class="col-8">
+    .col-8
+    <div class="row">
+      <div class="col-6">.col-6</div>
+      <div class="col-6">.col-6</div>
+    </div>
+  </div>
+  <div class="col-4">.col-4</div>
+</div>
+```
+
+***
+
+`.no-gutters` for no paddings.
+
+***
+
+### col
+
+Suffixes basically mean either **"I agree to be small and take a seat next to the others"** or **"I don't agree to share my space with the others"**.
+
+`col-xl` column will try to take:
+
+- 100% width until 720px
+- most of the line until 960px
+- most of the line until 1240px
+- most of the line until 1500px
+- rearrange into the row with another columns after 1500px
+
+`col-lg` column will try to take:
+
+- 100% width until 720px
+- most of the line until 960px
+- most of the line until 1240px
+- rearrange into the row with another columns after 1240px
+
+`col-md` column will try to take:
+
+- 100% width until 720px
+- most of the line until 960px
+- rearrange into the row with another columns after 960px
+
+`col-sm` column will try to take:
+
+- 100% width until 720px
+- rearrange into the row with another columns after 720px
+
+`col` will try to:
+
+- rearrange into the row with another columns as soon as possible
 
 ***
 
@@ -165,15 +231,17 @@ Some classes:
 
 ## Colors
 
-Bootstrap 4 has some contextual classes that can be used to provide "meaning through **colors**".
+Bootstrap uses several colors.
 
-`.text-muted, .text-primary, .text-success, .text-info, .text-warning, .text-danger, .text-secondary, .text-white, .text-dark, .text-body (default body color/often black) and .text-light`
+**Text**: `.text-muted, .text-primary, .text-success, .text-info, .text-warning, .text-danger, .text-secondary, .text-white, .text-dark, .text-body (default body color/often black) and .text-light`
 
 ![](img/2020-08-29-15-07-55.png)
 
-The classes for **background** colors are: `.bg-primary, .bg-success, .bg-info, .bg-warning, .bg-danger, .bg-secondary, .bg-dark and .bg-light`. 
+**Background**: `.bg-primary, .bg-success, .bg-info, .bg-warning, .bg-danger, .bg-secondary, .bg-dark and .bg-light`. 
 
 ![](img/2020-08-29-15-08-58.png)
+
+**Borders**: `.border-primary, ...`
 
 ***
 
@@ -256,6 +324,8 @@ Use `clas="mx-auto d-block"` to center image.
 
 
 ## Alerts
+
+![](img/2020-09-03-07-05-53.png)
 
 Add `.alert` to div, then add specifics: `.alert-success, .alert-info, .alert-warning, .alert-danger, .alert-primary, .alert-secondary, .alert-light, .alert-dark`
 
@@ -1050,57 +1120,525 @@ Add `.was-validated` or `.needs-validation` to the form to check it before of af
 
 `class="form-check"` ensures proper margins for labels and checkboxes.
 
-```html
+![](img/2020-09-03-07-33-14.png)
 
+```html
+<form action="/action_page.php">
+  <div class="form-group">
+    <label for="usr">Name:</label>
+    <input type="text" class="form-control" id="usr" name="username">
+  </div>
+  <div class="form-group">
+    <label for="pwd">Password:</label>
+    <input type="password" class="form-control" id="pwd" name="password">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
 ```
 
+**Radio**:
 
+![](img/2020-09-03-07-34-26.png)
 
+```html
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" name="optradio">Option 1
+  </label>
+</div>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" name="optradio">Option 2
+  </label>
+</div>
+<div class="form-check disabled">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" name="optradio" disabled>Option 3
+  </label>
+</div>
+```
 
+**Range** and **File**
 
+![](img/2020-09-03-07-35-01.png)
 
-
-
-
-
-
-### `col`
-
-`col-xl` column will try to take:
-
-- 100% width until 720px
-- most of the line until 960px
-- most of the line until 1240px
-- most of the line until 1500px
-- rearrange into the row with another columns after 1500px
-
-`col-lg` column will try to take:
-
-- 100% width until 720px
-- most of the line until 960px
-- most of the line until 1240px
-- rearrange into the row with another columns after 1240px
-
-`col-md` column will try to take:
-
-- 100% width until 720px
-- most of the line until 960px
-- rearrange into the row with another columns after 960px
-
-`col-sm` column will try to take:
-
-- 100% width until 720px
-- rearrange into the row with another columns after 720px
-
-`col` will try to:
-
-- rearrange into the row with another columns as soon as possible
+```html
+<input type="range" class="form-control-range">
+<input type="file" class="form-control-file border">
+```
 
 ***
 
-### `row`
 
-`row-xl` will try to:
 
-- 100% width 
+## Input Groups
 
+Good for labels.
+
+![](img/2020-09-03-07-59-30.png)
+
+```html
+<form>
+  <label for="username">Write your username here:</label>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text">@</span>
+    </div>
+    <input id="username" type="text" class="form-control" placeholder="Username">
+  </div>
+
+  <label for="email">Write your email here:</label>
+  <div class="input-group mb-3">
+    <input id="email" type="text" class="form-control" placeholder="Your Email">
+
+    <div class="input-group-append">
+      <span class="input-group-text">@example.com</span>
+    </div>
+  </div>
+</form>
+```
+
+***
+
+
+
+## Custom Forms
+
+Customized input elements
+
+![](img/2020-09-03-08-02-34.png)
+
+Example for **radio**:
+
+```html
+<form>
+  <div class="custom-control custom-radio">
+    <input type="radio" class="custom-control-input" id="customRadio" name="example1" value="customEx">
+    <label class="custom-control-label" for="customRadio">Custom radio</label>
+  </div>
+</form>
+```
+
+***
+
+
+
+## Carousel
+
+Gallery
+
+![](img/2020-09-03-08-05-09.png)
+
+```html
+<div id="demo" class="carousel slide" data-ride="carousel">
+
+  <!-- Indicators -->
+  <ul class="carousel-indicators">
+    <li data-target="#demo" data-slide-to="0" class="active"></li>
+    <li data-target="#demo" data-slide-to="1"></li>
+    <li data-target="#demo" data-slide-to="2"></li>
+  </ul>
+
+  <!-- The slideshow -->
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="la.jpg" alt="Los Angeles">
+    </div>
+    <div class="carousel-item">
+      <img src="chicago.jpg" alt="Chicago">
+    </div>
+    <div class="carousel-item">
+      <img src="ny.jpg" alt="New York">
+    </div>
+  </div>
+
+  <!-- Left and right controls -->
+  <a class="carousel-control-prev" href="#demo" data-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </a>
+  <a class="carousel-control-next" href="#demo" data-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </a>
+
+</div>
+```
+
+![](img/2020-09-03-08-05-33.png)
+
+Add elements inside `<div class="carousel-caption">` within each `<div class="carousel-item">` to create a caption for each slide:
+
+![](img/2020-09-03-08-07-46.png)
+
+```html
+<div class="carousel-item">
+  <img src="la.jpg" alt="Los Angeles">
+  <div class="carousel-caption">
+    <h3>Los Angeles</h3>
+    <p>We had such a great time in LA!</p>
+  </div>
+</div>
+```
+
+***
+
+
+
+## Modal
+
+Appearing message
+
+![](img/2020-09-03-08-08-25.png)
+
+```html
+<!-- Button to Open the Modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+  Open modal
+</button>
+
+<!-- The Modal -->
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Modal Heading</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      
+      <!-- Modal body -->
+      <div class="modal-body">
+        Modal body..
+      </div>
+      
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+```
+
+***
+
+
+
+## Tooltip
+
+Must be initialized using JS:
+
+![](img/2020-09-03-08-11-55.png)
+
+```html
+<a href="#" data-toggle="tooltip" title="Hooray!">Hover over me</a>
+
+<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+```
+
+***
+
+
+
+## Scrollspy
+
+Scrollspy is used to automatically update links in a navigation list based on scroll position.
+
+![](img/2020-09-03-08-15-11.png)
+
+```html
+<style>
+  body {
+      position: relative; 
+  }
+</style>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="100">
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">  
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" href="#section1">Section 1</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#section2">Section 2</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#section3">Section 3</a>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+        Section 4
+      </a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="#section41">Link 1</a>
+        <a class="dropdown-item" href="#section42">Link 2</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div id="section1" class="container-fluid bg-success" style="padding-top:70px;padding-bottom:70px">
+  <h1>Section 1</h1>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+</div>
+<div id="section2" class="container-fluid bg-warning" style="padding-top:70px;padding-bottom:70px">
+  <h1>Section 2</h1>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+</div>
+<div id="section3" class="container-fluid bg-secondary" style="padding-top:70px;padding-bottom:70px">
+  <h1>Section 3</h1>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+</div>
+<div id="section41" class="container-fluid bg-danger" style="padding-top:70px;padding-bottom:70px">
+  <h1>Section 4 Submenu 1</h1>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+</div>
+<div id="section42" class="container-fluid bg-info" style="padding-top:70px;padding-bottom:70px">
+  <h1>Section 4 Submenu 2</h1>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+  <p>Try to scroll this section and look at the navigation bar while scrolling! Try to scroll this section and look at the navigation bar while scrolling!</p>
+</div>
+
+</body>
+```
+
+***
+
+![](img/2020-09-03-08-29-12.png)
+
+```html
+  <style>
+  body {
+    position: relative;
+  }
+  ul.nav-pills {
+    top: 20px;
+    position: fixed;
+  }
+  div.col-8 div {
+    height: 500px;
+  }
+  </style>
+</head>
+<body data-spy="scroll" data-target="#myScrollspy" data-offset="1">
+
+<div class="container-fluid">
+  <div class="row">
+    <nav class="col-sm-3 col-4" id="myScrollspy">
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+          <a class="nav-link active" href="#section1">Section 1</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#section2">Section 2</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#section3">Section 3</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Section 4</a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#section41">Link 1</a>
+            <a class="dropdown-item" href="#section42">Link 2</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="col-sm-9 col-8">
+      <div id="section1" class="bg-success">    
+        <h1>Section 1</h1>
+        <p>Try to scroll this section and look at the navigation list while scrolling!</p>
+      </div>
+      <div id="section2" class="bg-warning"> 
+        <h1>Section 2</h1>
+        <p>Try to scroll this section and look at the navigation list while scrolling!</p>
+      </div>        
+      <div id="section3" class="bg-secondary">         
+        <h1>Section 3</h1>
+        <p>Try to scroll this section and look at the navigation list while scrolling!</p>
+      </div>
+      <div id="section41" class="bg-danger">         
+        <h1>Section 4-1</h1>
+        <p>Try to scroll this section and look at the navigation list while scrolling!</p>
+      </div>      
+      <div id="section42" class="bg-info">         
+        <h1>Section 4-2</h1>
+        <p>Try to scroll this section and look at the navigation list while scrolling!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+```
+
+Add `data-spy="scroll"` to the element that should be used as the scrollable area (often `<body>`).
+
+Then add the `data-target` attribute with a value of the **id** or the **class name** of the navigation bar (`.navbar`). This is to make sure that the navbar is connected with the scrollable area.
+
+Note that scrollable elements must **match the ID** of the links inside the navbar's list items (`<div id="section1">` matches `<a href="#section1">`).
+
+The optional `data-offset` attribute specifies the number of pixels to offset from top when calculating the position of scroll. This is useful when you feel that the links inside the navbar changes the active state too soon or too early when jumping to the scrollable elements. Default is 10 pixels.
+
+The element with `data-spy="scroll"` requires `position: relative`
+
+***
+
+
+
+## Utilities
+
+Bootstrap has a lot of utility/helper classes to quickly style elements without using any CSS code.
+
+**Borders**: 
+
+```html
+<span class="border border-secondary border-top-0"></span>
+<span class="border border-success border-right-0"></span>
+<span class="border border-danger border-bottom-0"></span>
+```
+
+**Rounded** borders to elements:
+
+```html
+<span class="rounded-sm"></span>
+<span class="rounded"></span>
+<span class="rounded-lg"></span>
+<span class="rounded-top"></span>
+<span class="rounded-right"></span>
+```
+
+**Float and Clearfix**:
+
+```html
+<div class="clearfix">
+  <span class="float-left">Float left</span>
+  <span class="float-right">Float right</span>
+</div>
+```
+
+**Responsive Floats**: Float an element to the left or to the right depending on screen width
+
+![](img/2020-09-03-18-54-10.png)
+
+```html
+<div class="float-sm-right">Float right on small screens or wider</div><br>
+<div class="float-md-right">Float right on medium screens or wider</div><br>
+<div class="float-lg-right">Float right on large screens or wider</div><br>
+<div class="float-xl-right">Float right on extra large screens or wider</div><br>
+<div class="float-none">Float none</div>
+```
+
+**Center** an element with the `.mx-auto` (margins left and right - auto)
+
+**Width**: `.w-25, .w-50, .w-75, .w-100, .mw-100`
+
+**Height**: `.h-25, .h-50, .h-75, .h-100, .mh-100`
+
+**Margins** and **paddings**: `m-*` and `p-*`:
+
+The classes are used in the format: `{property}{sides}-{size}` for `xs` and `{property}{sides}-{breakpoint}-{size}` for `sm, md, lg`, and `xl`.
+
+![](img/2020-09-03-19-01-13.png)
+
+**Shadows**:
+
+```html
+<div class="shadow-none p-4 mb-4 bg-light">No shadow</div>
+<div class="shadow-sm p-4 mb-4 bg-white">Small shadow</div>
+<div class="shadow p-4 mb-4 bg-white">Default shadow</div>
+<div class="shadow-lg p-4 mb-4 bg-white">Large shadow</div>
+```
+
+**Vertical Align**:
+
+![](img/2020-09-03-19-05-34.png)
+
+```html
+<span class="align-baseline">baseline</span>
+<span class="align-top">top</span>
+<span class="align-middle">middle</span>
+<span class="align-bottom">bottom</span>
+<span class="align-text-top">text-top</span>
+<span class="align-text-bottom">text-bottom</span>
+```
+
+**Responsive Embed**:
+
+```html
+<h2>Aspect ratio 16:9</h2>
+<div class="embed-responsive embed-responsive-16by9">
+  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/tgbNymZ7vqY"></iframe>
+</div>
+<br>
+  
+<h2>Aspect ratio 21:9</h2>
+<div class="embed-responsive embed-responsive-21by9">
+  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/tgbNymZ7vqY"></iframe>
+</div>
+```
+
+![](img/2020-09-03-23-40-15.png)
+
+***
+
+`.fixed-top, .fixed-bottom` classes make elements **sticky**.
+
+`.close` makes button a nice closing cross. Sticks to the right by default.
+
+![](img/2020-09-03-23-52-29.png)
+
+```html
+<button type="button" class="close">&times;</button>
+```
+
+`.text-black-50, .text-white-50` add 50% **opacity** for white and black text.
+
+***
+
+A lot of other classes:
+
+![](img/2020-09-03-23-55-00.png)
+
+***
+
+`.d-block, .d-sm-block, d-md-block, d-lg-block, d-xl-block` classes apply `display: block`. The same stands for other displays.
+
+***
+
+
+
+## Media Objects
+
+```html
+<div class="media border p-3">
+  <img src="img_avatar3.png" alt="John Doe" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+  <div class="media-body">
+    <h4>John Doe <small><i>Posted on February 19, 2016</i></small></h4>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <div class="media p-3">
+      <img src="img_avatar2.png" alt="Jane Doe" class="mr-3 mt-3 rounded-circle" style="width:45px;">
+      <div class="media-body">
+        <h4>Jane Doe <small><i>Posted on February 20 2016</i></small></h4>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+    </div>  
+  </div>
+</div>
+```
+
+![](img/2020-09-04-00-00-44.png)
+
+***
