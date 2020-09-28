@@ -5,6 +5,9 @@
 - [ArrayBuffer](#arraybuffer)
 	- [Static Properties and Methods](#static-properties-and-methods)
 	- [Instance Properties and Methods](#instance-properties-and-methods)
+- [DataView](#dataview)
+	- [Constructor](#constructor)
+	- [Setting and Getting Value](#setting-and-getting-value)
 
 ***
 
@@ -151,7 +154,7 @@ const i8 = new Int8Array(arraybuffer)
 console.log(i8)
 ```
 
-![](img/2020-09-24-14-32-12.png)
+![](img/2020-09-28-16-11-58.png)
 
 Why so? `ArrayBuffer(8)` basically produces `[00 00 00 00 00 00 00 00]`. 
 
@@ -233,3 +236,67 @@ console.log(i16.slice(1))	// from [1] to the end
 console.log(i16.slice(0, 2))	// from [0] to [2] (exclusively)
 // Uint16Array(2) [64529, 11413]
 ```
+
+***
+
+
+
+# DataView
+
+A low-level interface for reading and writing multiple number types in a binary `ArrayBuffer`, without having to care about the platform's **endianness**.
+
+## Constructor
+
+`new DataView(buffer [, byteOffset [, byteLength]])`
+
+```js
+const buffer = new ArrayBuffer(8)
+const dataview = new DataView(buffer)
+```
+
+***
+
+
+## Setting and Getting Value
+
+You can set values using any types of words. Default is **BE** but setting **LE** is possible via the 3rd optional param (set it `true`).
+
+`dataview.setUint32 (offset, value[, littleEndian])`
+
+`dataview.getInt32 (byteOffset [, littleEndian])`
+
+Other views are available as well.
+
+Set:
+
+```js
+var buffer = new ArrayBuffer(8)
+var view = new DataView(buffer)
+view.setUint32(0, 32)
+view.setUint8(4, 15)
+view.setInt16(5, 255, true)
+
+console.log(buffer)
+
+console.log(view.getUint16(0))
+```
+
+![](img/2020-09-28-17-36-25.png)
+
+Get:
+
+```js
+var buffer = new ArrayBuffer(8)
+var view = new DataView(buffer)
+
+view.setUint16(0, 0xFFFF)
+view.setInt32(2, 0xAABBCCDD)
+
+console.log(view.getUint8(0))			// 255
+console.log(view.getUint16(3))			// 48076 === BBCC
+console.log(view.getUint16(3, true))	// 52411 === CCBB
+
+console.log(buffer)
+```
+
+![](img/2020-09-28-18-06-40.png)
