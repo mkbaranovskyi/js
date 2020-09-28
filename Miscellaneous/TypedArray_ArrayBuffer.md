@@ -1,5 +1,5 @@
 - [Typed Array](#typed-array)
-	- [Static Methods](#static-methods)
+	- [Static Methods and Properties](#static-methods-and-properties)
 	- [Instance Properties](#instance-properties)
 	- [Instance Methods](#instance-methods)
 - [ArrayBuffer](#arraybuffer)
@@ -57,7 +57,7 @@ The constructor of **TypedArray** can accept different params:
 ***
 
 
-## Static Methods
+## Static Methods and Properties
 
 1. `TypedArray.of(elementsN)` - creates a new typed array from a variable number of arguments. This method is nearly the same as `Array.of()`.
 
@@ -78,6 +78,12 @@ console.log(typedArray)
 typedArray = Int8Array.from('12364')
 console.log(typedArray)
 // [1, 2, 3, 6, 4]
+```
+
+3. `TypedArray.name` - returns a string representing the constructor name.
+
+```js
+console.log(Uint8Array.name)	// Uint8Array
 ```
 
 ***
