@@ -1,41 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<style>
+	.item {
+		background: #fff;
+		border: 1px solid #666;
+		height: 100px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>Document</title>
-</head>
+	#sentinel {
+		width: 1px;
+		height: 1px;
+	}
 
-<body class="dark-theme">
-	<style>
-		div {
-			margin: 150px;
-		}
-	</style>
-	
-	<user-card>
-		<div slot="username">
-			<span>John Smith</span>
-		</div>
-	</user-card>
-	
+	#scroller {
+		height: 400px;
+		overflow-y: scroll;
+		border: 1px solid yellow;
+	}
+</style>
+
+<body>
+	<div id="scroller">
+		<!-- an element we track, as soon as it appears visible, call the callback -->
+		<div id="sentinel"></div>
+	</div>
+
 	<script>
-		customElements.define('user-card', class extends HTMLElement {
-			connectedCallback() {
-				this.attachShadow({
-					mode: 'open'
-				});
-				this.shadowRoot.innerHTML = `
-		  <style>
-		  ::slotted(div) { background: red; }
-		  </style>
-		  Name: <slot name="username"></slot>
-		`;
+		const scroller = document.getElementById('scroller')
+		const sentinel = document.getElementById('sentinel')
+		let counter = 1
+
+		const intersectionObserver = new IntersectionObserver(callback)
+
+		// we track `sentinel` with the given options, as soon as it intersects `root` for > 0 `intersectionRation`, the callback is executed
+		intersectionObserver.observe(sentinel)
+
+		function callback(entries) {
+			if (entries.some((entry) => entry.intersectionRatio > 0)) {
+				// load 10 more blocks
+				loadItems(10)
+
+				// move `sentinel` to the end
+				scroller.append(sentinel)
+
+				// load 5 more blocks
+				loadItems(5)
+				// When the `sentinel` is hit, there're 5 more blocks behind it, but the callback is already adding 10 more, so 5 + 10 = 15 blocks until the next `sentinel` hit.
 			}
-		});
+		}
+
+		function loadItems(n) {
+			for (let i = 0; i < n; i++) {
+				const newItem = document.createElement('div')
+				newItem.classList.add('item')
+				newItem.textContent = 'Item ' + counter++
+				scroller.append(newItem)
+			}
+		}
 	</script>
 </body>
-
-</html>
