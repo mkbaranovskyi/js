@@ -1,0 +1,13 @@
+.form-header
+  h2 Send us a message
+form(method='post' action='/' enctype="multipart/form-data" novalidate='')
+  .form-field
+    input(type="file", name="file")
+  //- .form-field
+  //-   label(for='message') Message
+  //-   textarea#message.input(name='message' rows='4' autofocus='')
+  //- .form-field
+  //-   label(for='email') Email
+  //-   input#email.input(name='email' type='email' value='')
+  .form-actions
+    button.btn(type='submit') Send
