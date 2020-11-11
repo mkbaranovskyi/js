@@ -6,16 +6,17 @@
 		- [Heap](#heap)
 		- [Queues](#queues)
 		- [Stack](#stack)
+	- [Adding Macro- and Microtasks](#adding-macro--and-microtasks)
 	- [Full picture](#full-picture)
-		- [Example](#example)
+	- [Examples](#examples)
 
 ***
 
 ## Sources 
 
-1. https://careersjs.com/magazine/javascript-job-queue-microtask/
-2. https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop
-3. https://javascript.info/event-loop
+1. https://careersjs.com/magazine/javascript-job-queue-microtask/ - best explanation
+2. https://javascript.info/event-loop - read about optimizations
+3. https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop - not good, too simplified, Job Queue never mentioned
 4. https://frarizzi.science/journal/web-engineering/browser-rendering-queue-in-depth - rendering queue (not covered in this lesson)
 
 ***
@@ -37,7 +38,7 @@ Objects are allocated in the Heap - a large mostly unstructured region of memory
 There are 2 separate queues based on the **FIFO** principle (first in, first out) in JS:
 
 1. The Message Queue (aka the Task / **Macro**task Queue). It stores the majority of callbacks: from events, timers, network connections, etc.
-2. The Jobs Queue (aka the **Micro**task Queue). It stores Promise callbacks (thens) and other microtasks.
+2. The Job Queue (aka the **Micro**task Queue). It stores Promise callbacks (thens) and other microtasks.
 
 Examples of **macrotasks**:
 
@@ -46,9 +47,7 @@ Examples of **macrotasks**:
 - When the time is due for a scheduled `setTimeout`, the task is to run its callback.
 - …and so on.
 
-Tasks are set – the engine handles them – then waits for more tasks (while sleeping and consuming close to zero CPU).
-
-**All microtasks** from the Jobs Queue are executed until the Job Queue is empty **after each message execution from the Macrotask Queue**. Again: 
+**All microtasks** from the Job Queue are executed until the Job Queue is empty **after each message execution from the Macrotask Queue**. Again: 
 
 1. **One** function from the Macrotask Queue executed.
 2. **All** functions in the Microtask Queue executed.
@@ -67,50 +66,21 @@ Stack represents the only execution thread present in JS. When a function execut
 
 ***
 
-Example: 
-
-```javascript
-main()
-
-function main() {
-	setTimeout(function exec() {
-		console.log('B')
-	}, 0)
-
-	queueMicrotask(() => {
-  	console.log('micro')
-	})
-  
-	console.log('A')
-}
-```
-
-Output:
-
-```
-A
-micro
-B
-```
-
-CHANGE THIS
 
 
-![](img/2020-06-26-13-13-15.png)
+## Adding Macro- and Microtasks
 
-1. `main` is added to the **macrotask queue**. It begins to execute. 
-2. `main`is added to the **stack** as `frame` #1. No other **macrotasks** will be executed before the **stack** is empty again. 
-3. `console.log('A')` is added to the **stack** as `framt` #2, then executed and removed from the **stack**.
-4. `setTimeout` with the `exec` callback is added to the **stack** as `frame` #2. The browser API is used to delay the callback, after which the `frame` is removed from the **stack**. 
-5. `console.log('C')` is added to the **stack** as `frame` #2, then executed and removed from the **stack**.
-6. As 0 s (actually 0.000004 s) passed, the `exec` callback is added to the **queue** and will be executed as soon as possible.
-7. The last expression of the `main` finished execution, so the `main` itself is removed from the stack. The **stack is empty** once again.
-8. `exec` begins execution, becoming `frame` #1 in the **stack**.
+Sometimes you may want to not execute something immediately but rather delay its execution to the next Event Loop iteration. Here's how you can do this:
 
+Task|How to do|Notes
+-|-|-
+Macro|`setTimeout(fn)`|Useful to break large tasks on the smaller ones to let microtasks and rendering changes in between. 
+Micro|**Promises**, `queueMicrotask(fn)`, `MutationObserver`|These are run as soon as the Stack is empty. Be cautious to not **starve** your app as the microtasks added from the Misrotask Queue are not deferred to the next iteration of it but rather run in the current one.
 
-
+To perform more complex calculations use `Web Workers` - they have their own event loops and can work in parallel with the main loop in the browser. 
 
 ***
+
 
 
 ## Full picture
@@ -185,74 +155,89 @@ The JavaScript engine **does nothing most of the time**, it only runs if a scrip
 ***
 
 
+## Examples
 
-
-
-
-
-Example:
+Example 1
 
 ```javascript
-new Promise((resolve => {				// macrotask (fn)
-	resolve(console.log('macrotask'))
-}))
-// Remember: zero callbacks as here are not actually zero but 0.000004 or similar. Thus, this callback will have to wait for synchronous tasks below if any.
-.then(() => {							// macrotask (fn)
-    for(let i = 0; i <= 1000000000; i++){	// added to the microtask queue
-	    if(i === 0) {			
-			document.body.innerHTML = ''	// added to the render queue
-		}
-        if(i === 1000000000) console.log('the microtask queue finished')
-    }
-})
+main()
 
-console.log('sync task')	// sync macrotask
+function main() {
+	console.log('A')
 
-run()						// the same
+	setTimeout(function exec() {
+		console.log('c')
+	})
 
-function run(){
-	console.log('run')
+	console.log('C')
 }
 ```
 
-1. The **macrotask** (`promise`) is executed.
-2. Async **microtask** chain of `then()` handlers is planned but as it's async, zero delay actually becomes 0.000004 s or similar. The other **sync macrotasks** get priority and run first. 
-3. The rest of **macrotasks** are finished.
-4. The **microtasks** queue (`then`) begins and works to completion. Render of changes is planned but waits the end of the **microtask** queue. 
-5. As the **microtask** queue finished, the **render** queue gets to render the changes - the page disappears.
+Output:
 
-If you relocate the render changes outside of the function - nothing will change, it will still run after the **microtask** queue. 
-
-***
-
-Example: 
-
-```javascript
-setTimeout(() => alert("timeout"))		// 4
-
-new Promise((resolve, reject) => {		// 1
-	alert('executor function')
-	resolve()
-})
-	.then(() => alert("then1"))			// 3.1
-	.then(() => alert("then2"))			// 3.2
-	.then(() => alert("then3"))			// 3.3
-	// any number of mictorask handlers... 
-
-alert("code")							// 2
+```
+A
+C
+B
 ```
 
-The result: 
+![](img/2020-06-26-13-13-15.png)
 
-1. `setTimeout` planns the callback but zero delay turns into 0.000004 s and lets the other sync functions forward. 
-2. `Promise` including the `alert` - sync **macrotask**.
-3. `alert("code")`	- sync **macrotask**.
-4. All the promise handlers one after another - the **microtask queue**.
-5. The `setTimeout` handler as this is another **macrotask**.
+1. The Stack is empty so `main()` is added to it immediately as frame 1.
+2. `console.log('A')` is added to the Stack as frame 2, then executed and removed from the Stack.
+3. `setTimeout` callback `exec` is added to the Stack as frame 2. The browser API is used to delay the callback. Frame 2 is removed from the Stack. 
+4. `console.log('C')` is added to the Stack as frame 2, then executed and removed from the Stack.
+5. `main` has finished its work and removed from the Stack (it lived as frame 1). The Stack is empty. Other tasks can be executed now.
+6. As 0 s (actually 0.000004 s) passed, the `exec` callback is added to the Message Queue and will be executed as soon as possible.
+7. `exec` begins execution, becoming frame 1 in the Stack. Then removed from the Stack. 
 
 ***
 
-Example:
+Example 2 
+
+```javascript
+// 1. Added to the Job Queue as Microtask 1
+queueMicrotask(() => console.log('micro outer 1'))
+
+// 2. Added to the Stack and begins execution
+main()	// -> go inside
+// 6. Function finished and removed from the Stack.
+
+// 7. Added to the Job Queue as Microtask 3
+queueMicrotask(() => console.log('micro outer 2'))
+
+function main() {
+	// 3. Added to the Stack, callback planned as Macrotask 1, removed from the Stack
+	setTimeout(function exec() {
+		console.log('timeout')
+	})
+
+	// 4. Added to the Stack, callback enqueued to the Job Queue as Microtask 2, removed from the Stack
+	queueMicrotask(() => {
+  		console.log('micro inner')
+	})
+  
+	// 5. Added to the Stack, executed, removed from the Stack.
+	console.log('A')
+}
+```
+
+Only 'A' is printed immediately. The rest of the output is planned in the Queues and will be executed with minimal delay.
+The result: 
+
+```
+A
+
+micro outer 1
+micro inner
+micro outer 2
+
+timeout
+```
+
+***
+
+Example 3. This example shows that `setTimeout` represents the **minimal** time to run a task, not the actual one. Here we set up timer for 500 ms but then block execution with the 2 s task. While the Stack is busy running the loop, no other tasks cab be performed, so the timer callback can only run in 2 s - when the Stack is finally ompry. 
 
 ```javascript
 const s = new Date().getSeconds();
@@ -270,24 +255,9 @@ while (true) {
 }
 ```
 
-1. Save the current seconds to the variable, (let's say `47`).
-2. `setTimeout` starts the 500 ms countdown. In 500 ms the callback will be added to the **macrotask** queue for execution. 
-3. The `loop` starts - the **microtask** queue. It runs to completion. 
-4. In 500 ms the setTimeout `callback` is added to the **macrotask** queue. But it cannot start executing since the previous task isn't finished (the **microtask** queue - the loop).
-5. In another 1500 ms the **microtask** queue (the loop) ends. 
-6. The **macrotask** `callback` finally gets processed. Because of the delay it returns the `2 s` result.
-
 ***
 
-To add a new **macrotask** use `setTimeout(fn)`. Useful to break large tasks on the smaller ones to let microtasks and rendering changes in between. 
-
-To add a new **microtask** use `queueMicrotask(fn)`. Useful to guarantee the context didn't change and no new data arrived during the execution of the mictorasks. 
-
-To perform more complex calculations use `Web Workers` - they have their own event loops and can work in parallel with the main loop in the browser. 
-
-***
-
-### Example
+Example 4
 
 ```js
 setTimeout(() => {
@@ -323,7 +293,6 @@ function thirdFunction() {
     console.log(res)
   })
 
-  queueMicrotask(() => {
     console.log('Hello from the microtask queue')
   })
 
@@ -348,7 +317,7 @@ function secondFunction() {
 Output:
 
 ```
-# Sync code
+# Sync code output
 
 Loop done in 5865ms
 first console log
