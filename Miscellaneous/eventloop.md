@@ -1,48 +1,100 @@
 # Event Loop
 
+- [Event Loop](#event-loop)
+	- [Sources](#sources)
+	- [Terms](#terms)
+		- [Heap](#heap)
+		- [Queues](#queues)
+		- [Stack](#stack)
+	- [Full picture](#full-picture)
+		- [Example](#example)
+
+***
+
+## Sources 
+
+1. https://careersjs.com/magazine/javascript-job-queue-microtask/
+2. https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop
+3. https://javascript.info/event-loop
+4. https://frarizzi.science/journal/web-engineering/browser-rendering-queue-in-depth - rendering queue (not covered in this lesson)
+
+***
+
+
+## Terms
+
 ![](img/2020-06-25-15-12-11.png)
 
-***
+### Heap
 
-
-## Queue
-
-**FIFO**: first in, first out.
-
-The best analogy - a store with only one cashier.
-
-`Messages` (tasks) are getting added to the `queue` and **run to completion**. The next task doest not start executing until the previous one finished and left the `queue`. 
+Objects are allocated in the Heap - a large mostly unstructured region of memory. 
 
 ***
 
 
-## Stack
+### Queues
 
-**FILO**: first in - last out.
+There are 2 separate queues based on the **FIFO** principle (first in, first out) in JS:
 
-The best analogy - a toy pyramid. 
+1. The Message Queue (aka the Task / **Macro**task Queue). It stores the majority of callbacks: from events, timers, network connections, etc.
+2. The Jobs Queue (aka the **Micro**task Queue). It stores Promise callbacks (thens) and other microtasks.
 
-Stack represents the only execution thread present in JS. When a function executs, expressions from the function get into stack, execute and then pop out. When the stack is completely empty, the `queue` proceeds to the next task. 
+Examples of **macrotasks**:
+
+- When an external script `<script src="...">` loads, the task is to execute it.
+- When a user moves their mouse, the task is to dispatch mousemove event and execute handlers.
+- When the time is due for a scheduled `setTimeout`, the task is to run its callback.
+- …and so on.
+
+Tasks are set – the engine handles them – then waits for more tasks (while sleeping and consuming close to zero CPU).
+
+**All microtasks** from the Jobs Queue are executed until the Job Queue is empty **after each message execution from the Macrotask Queue**. Again: 
+
+1. **One** function from the Macrotask Queue executed.
+2. **All** functions in the Microtask Queue executed.
+3. Repeat 1-2 until there's no pending tasks of any kind anymore. 
+
+It is possible for the code in the **Microtask Queue** to schedule more callbacks. These will **not be deferred** until future iterations but will instead run in the **current iteration**, meaning it is possible to **starve** your program by creating an endless loop of Job Queue callbacks. So be careful adding new microtasks!
+
+***
+
+
+### Stack
+
+The FILO (first in - last out) queue. The best analogy - a toy pyramid. 
+
+Stack represents the only execution thread present in JS. When a function executs, expressions from the function get into the Stack, execute and then pop out. When the Stack is **completely empty**, only then the Queue proceeds to the next task. 
 
 ***
 
 Example: 
 
 ```javascript
+main()
+
 function main() {
-	console.log('A')
 	setTimeout(function exec() {
 		console.log('B')
 	}, 0)
-	console.log('C')
-}
 
-main()
-// Output
-// A
-// C
-// B
+	queueMicrotask(() => {
+  	console.log('micro')
+	})
+  
+	console.log('A')
+}
 ```
+
+Output:
+
+```
+A
+micro
+B
+```
+
+CHANGE THIS
+
 
 ![](img/2020-06-26-13-13-15.png)
 
@@ -55,41 +107,88 @@ main()
 7. The last expression of the `main` finished execution, so the `main` itself is removed from the stack. The **stack is empty** once again.
 8. `exec` begins execution, becoming `frame` #1 in the **stack**.
 
-***
 
 
-## Heap
-
-Objects are allocated in heap - a large mostly unstructured region of memory. 
 
 ***
 
 
-## Macrotasks and microtasks
+## Full picture
 
-The `queue` is actually more complex. It consists of three separate queues: 
+The Event Loop concept is very simple. There’s an endless loop, where the JavaScript engine waits for tasks, executes them and then sleeps, waiting for more tasks. **It doesn't work all the time** - only when there're tasks! 
 
-1. the **macrotask** queue: 
-   - loaded scripts, 
-   - browser events, 
-   - functions, 
-   - network requests,  
-2. the **microtask** queue: 
-   - the loop iterations,
-   - the `promise` hanlders (`then`, `catch`, `finally`),
-   - `MutationObserver`
-3. the **render** queue (changes on the page).
+The best analogy - a roller coaster. People wait in line. Every few minutes the cart returns, takes another group of people (another function from the Macrotask Queue) and goes on for another ride. But as soon as people with VIP tickets arrive (the Microtask Queue), they take a ride without waiting in line **as soon as the cart arrives** (the current task is finished and the Stack is empty). After all VIPs are satisfied, the common line continues. And the loop works to the last passanger. Then it goes dormant until new tasks arrive. 
+
+The general algorithm of the engine (not the actual code, consider it a **pseudo code**!):
+
+```js
+// These 2 arrays and object are filled from somewhere else
+let tasks, 
+	microtasks,
+	renderQueue,
+	stack
+
+function eventLoop(){
+	// While there are tasks of any kind
+	while(tasks.length || microtasks.length){
+		// Execute all microtasks if any
+		if(microtasks.length){
+			runMicrotasks()
+		}
+
+		// Execute ONE macrotask to completion if any
+		if(tasks.length){
+			runTask(tasks[0])
+			// Remove the finished task from the Message Queue
+			tasks.shift()
+		}
+
+		// Render changes if any
+		if(renderQueue.length){
+			renderAllChanges()
+		}
+	}
+}
+
+function runMicrotasks(){
+	// Remember: the Microtask Queue DOES allow adding new functions to itself to be executed right away, on the current Microtask Queue run
+	while(microtasks.length){
+		runTask(microtasks[0])
+		microtasks.shift()
+	}
+}
+
+function runTask(task){
+	if(stack.isEmpty){
+		addToStack()
+	} else {
+		stack.addEventListener('emptyAgain', addToStack)
+		stack.removeEventListener('emptyAgain', addToStack)
+	}
+
+	function addToStack(){
+		stack.add(task)
+	}
+}
+```
+
+While there are tasks:
+
+1. Execute them, starting with the oldest task.
+2. Execute all microtasks from the Microtask Queue between different macrotasks.
+3. Render changes if any.
+4. To execute any taks, it is placed to the Stack and **runs to completion**. This means that until the Stack is empty again, no further tasks of any kind will be touched. 
+5. Repeat paragraphs 1-4 until there're no more tasks. Go to sleep after that until new tasks arrive. 
+
+The JavaScript engine **does nothing most of the time**, it only runs if a script/handler/event activates.
 
 ***
 
-The **event loop algorithm** is the following:
 
-1. Execute the oldest **macrotask** from the macrotask queue. 
-2. Execute **the whole microtask queue** if any. 
-3. Execute **the whole render queue** if any. 
-4. Repeat. 
 
-***
+
+
+
 
 Example:
 
@@ -188,3 +287,96 @@ To perform more complex calculations use `Web Workers` - they have their own eve
 
 ***
 
+### Example
+
+```js
+setTimeout(() => {
+  console.log('first timeout')
+})
+
+firstFunction()
+secondFunction()
+console.log('first console log')
+
+function firstFunction() {
+  thirdFunction()
+
+  const firstResponse = Promise.resolve('1st Promise')
+  const secondResponse = Promise.resolve('2nd Promise')
+
+  setTimeout(() => {
+    firstResponse.then(res=> {
+      console.log(res)
+    })
+  })
+
+  secondResponse.then(res=> {
+    console.log(res)
+  })
+}
+
+function thirdFunction() {
+  const thirdResponse = Promise.resolve('3rd Promise')
+  const fourthResponse = Promise.resolve('4th Promise')
+
+  thirdResponse.then(res=> {
+    console.log(res)
+  })
+
+  queueMicrotask(() => {
+    console.log('Hello from the microtask queue')
+  })
+
+  setTimeout(() => {
+    fourthResponse.then(res=> {
+      console.log(res)
+    })
+  })
+}
+
+function secondFunction() {
+  let i = 0
+  let start = Date.now()
+
+  for (let j = 0; j < 5.e9; j++) {
+    i++
+  }
+  console.log("Loop done in " + (Date.now() - start) + 'ms')
+}
+```
+
+Output:
+
+```
+# Sync code
+
+Loop done in 5865ms
+first console log
+
+
+# Async Job Queue
+
+3rd Promise
+Hello from the microtask queue
+2nd Promise
+
+
+# Async Message Queue
+
+first timeout
+4th Promise
+1st Promise
+```
+
+1. Sync code runs first. 
+   1. `setTimeout` is set.
+   2. `firstFunction` runs. It immediately calls the `thirdFunction`
+      1. `thirdFunction` runs. Promises are resolved and `then`-s` are planned as callbacks in their corresponding queues. 
+   3. Back to the `firstFunction`. Promises are resolved and `then`-s` are planned as callbacks in their corresponding queues. 
+   4. `secondFunction` runs. It **blocks** execution for several seconds while the loop is running **synchronously** inside. Then it produces the first output. 
+   5. Sync `first console log` it printed. The **sync code is finished**, all callbacks are set to their queues.
+2. Now it's time for **async** callbacks.
+   1. The Job Queue runs all stored callbacks in the FIFO order.
+   2. The Message Queue runs all stored callbacks in the FIFO order.
+
+![](img/loop_pic.png)

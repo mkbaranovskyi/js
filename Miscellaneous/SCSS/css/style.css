@@ -1,0 +1,150 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body,
+html {
+  width: 100%;
+  min-height: 100%;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  background-color: blue;
+}
+header button {
+  background: #336600;
+}
+header button:hover {
+  background-color: #009966;
+}
+header button::before {
+  content: "::before";
+  background-color: #777ccc;
+}
+
+option {
+  color: red;
+}
+
+.contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: row;
+  background-color: yellow;
+}
+.contact button {
+  background-color: #80ff00;
+}
+
+section {
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+ul {
+  background-color: #036;
+  list-style: none;
+}
+ul li:nth-child(3n+1) {
+  background-color: #004080;
+}
+ul li:nth-child(3n+2) {
+  background-color: #004d99;
+}
+ul li:nth-child(3n+3) {
+  background-color: #0059b3;
+}
+
+body {
+  background: black;
+}
+
+.m-1 {
+  margin: 1rem;
+}
+
+.my-1 {
+  margin: 1rem 0;
+}
+
+.p-1 {
+  padding: 1rem 0;
+}
+
+.py-1 {
+  padding: 1rem 0;
+}
+
+.m-2 {
+  margin: 2rem;
+}
+
+.my-2 {
+  margin: 2rem 0;
+}
+
+.p-2 {
+  padding: 2rem 0;
+}
+
+.py-2 {
+  padding: 2rem 0;
+}
+
+.m-3 {
+  margin: 3rem;
+}
+
+.my-3 {
+  margin: 3rem 0;
+}
+
+.p-3 {
+  padding: 3rem 0;
+}
+
+.py-3 {
+  padding: 3rem 0;
+}
+
+.m-4 {
+  margin: 4rem;
+}
+
+.my-4 {
+  margin: 4rem 0;
+}
+
+.p-4 {
+  padding: 4rem 0;
+}
+
+.py-4 {
+  padding: 4rem 0;
+}
+
+.m-5 {
+  margin: 5rem;
+}
+
+.my-5 {
+  margin: 5rem 0;
+}
+
+.p-5 {
+  padding: 5rem 0;
+}
+
+.py-5 {
+  padding: 5rem 0;
+}
+
+/*# sourceMappingURL=style.css.map */
