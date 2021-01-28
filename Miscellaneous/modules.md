@@ -6,6 +6,7 @@
   - [Module features](#module-features)
   - [Export default](#export-default)
   - [Dymanic imports](#dymanic-imports)
+- [Modules in Node.js](#modules-in-nodejs)
 
 ---
 
@@ -312,3 +313,23 @@ export default function () {
 ```
 
 **NB**: `import()` is not a function! It looks similar, but we can't `call/apply` it or copy it to a variable.
+
+---
+
+# Modules in Node.js
+
+https://stackabuse.com/how-to-use-module-exports-in-node-js/
+
+In Node, we use `module.exports` object that the current module returns when it is `required` in another program or module.
+
+```js
+console.log(module)
+```
+
+![](img/2021-01-07-16-00-00.png)
+
+To export a variable, we simply attack it as a property of `module.exports`:
+
+```js
+module.exports.temperature = temp
+```
