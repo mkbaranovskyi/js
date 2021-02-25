@@ -13,6 +13,7 @@
 1. https://www.youtube.com/watch?v=SydnKbGc7W8 - tutorial
 2. https://eslint.org/docs/rules/ - eslint
 3. https://www.npmjs.com/package/eslint-config-airbnb - airbnb
+4. https://www.youtube.com/watch?v=bfyI9yl3qfE - react
 
 ---
 
@@ -44,10 +45,18 @@ To **ignore** some files create the `.prettierignore` file and place it to the r
 
 ## ESLint
 
+Node:
+
 1. `sudo npm i -g eslint`
 2. Install the `ESLint` extension
 3. Make sure you have your `package.json`
 4. In the project folder: `eslint --init`, answer the questions.
+
+React:
+
+1. `npm install eslint -D`
+2. `npm init` if you don't have `package.json`
+3. `npx eslint --init`
 
 Now your code will highlight various problems and suggest fixes.
 
@@ -61,9 +70,9 @@ An optional set of rules.
 
 1. `npm i -D prettier eslint-plugin-prettier eslint-config-prettier eslint-plugin-node eslint-config-node`
 2. `npx install-peerdeps --dev eslint-config-airbnb-base`
-3. Insert these basic settings and then **modify them to your taste**:
+3. Create a `.eslintrc.json` file in you project folder and insert these basic settings. Then you can **modify them to your taste**:
 
-**.eslintrc.json**
+_.eslintrc.json_
 
 ```json
 {
@@ -75,6 +84,29 @@ An optional set of rules.
 		"consistent-return": "off",
 		"no-param-reassign": "warn",
 		"class-methods-use-this": "off"
+	}
+}
+```
+
+For React: https://www.youtube.com/watch?v=bfyI9yl3qfE
+
+```json
+{
+	"env": {
+		"browser": true,
+		"es2021": true
+	},
+	"extends": ["eslint:recommended", "plugin:react/recommended"],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 12,
+		"sourceType": "module"
+	},
+	"plugins": ["react"],
+	"rules": {
+		"react/prop-types": "warn"
 	}
 }
 ```
