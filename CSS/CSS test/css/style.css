@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 3000px;
+}
+
+section {
+  padding: 10px;
+  border: 3px solid black;
+  overflow: hidden;
+}
+
+.parent-top {
+  background-color: lightskyblue;
+  margin: 20px;
+  padding: 20px;
+}
+
+.child1 {
+  background-color: red;
+  height: 100px;
+}
+
+.child2 {
+  background-color: yellow;
+  position: sticky;
+  top: 20px;
+  bottom: 20px;
+}
+
+.child3 {
+  background-color: green;
+  height: 200px;
+}
+
+/*# sourceMappingURL=style.css.map */
