@@ -1,70 +1,63 @@
 <!DOCTYPE html>
-
+	
 <link rel="stylesheet" href="css/normalize.css">
 
 <style>
 	* {
-		box-sizing: border-box;
-	}
+	box-sizing: border-box;
+}
 
-	
+body {
+	margin: 0;
+	padding: 0;
+}
+
+div {
+	padding: 10px;
+	border: 3px solid black;
+	overflow: auto;
+}
+
+.container {
+	display: flex;
+	margin: 20px;
+	padding: 20px;
+  border: 3px solid black;
+  overflow: hidden;
+	resize: both;
+	background-color: #c7deeb;
+}
+
+.child {
+	flex: auto;
+	height: 50px;
+	width: 50px;
+}
+
+.child1 {
+	background-color: #3ae173;
+}
+
+.child2 {
+	flex: 2 5;
+	min-width: 100px;
+	background-color: #ebc914;
+}
+
+.child3 {
+	background-color: #d5363d;
+}
+
+.child4 {
+	background-color: #3e9ed4;
+}
+
+
 </style>
 
-<input type="checkbox">
-<input type="checkbox" checked>
-<input type="text" id="message">
-
-<h3 id="widget-title">Сообщения:</h3>
-<ul id="messages">
-  <li id="message-1">Сообщение 1</li>
-  <li id="message-2">Сообщение 2</li>
-  <li id="message-3" data-action="delete">Сообщение 3</li>
-  <li id="message-4" data-action="edit do-not-delete">Сообщение 4</li>
-  <li id="message-5" data-action="edit delete">Сообщение 5</li>
-  <li><a href="#">...</a></li>
-</ul>
-
-<a href="http://site.com/list.zip">Ссылка на архив</a>
-<a href="http://site.com/list.pdf">..И на PDF</a>
-
-<script>
-	// Выбрать input типа checkbox, НЕ отмеченный.
-	let result = document.querySelectorAll('input[type="checkbox"]:not(:checked)')
-	console.log(result)
-
-	// Найти все элементы с id=message или message-*.
-	result = document.querySelectorAll('[id|="message"]')
-	console.log(result)
-
-	// Найти все элементы с id=message-*.
-	result = document.querySelectorAll('[id^="message-"')
-	console.log(result)
-
-	// Найти все ссылки с расширением href="...zip".
-	result = document.querySelectorAll('a[href$="zip"]')
-	console.log(result)
-
-	// Найти все элементы с атрибутом data-action, содержащим delete в списке (через пробел).
-	result = document.querySelectorAll('[data-action~="delete"')
-	console.log(result)
-
-	// Найти все элементы, у которых ЕСТЬ атрибут data-action, но он НЕ содержит delete в списке (через пробел).
-	result = document.querySelectorAll('[data-action]:not([data-action~="delete"])')
-	console.log(result)
-
-	// Выбрать все чётные элементы списка #messages.
-	result = document.querySelectorAll('#messages li:nth-child(2n)')
-	console.log(result)
-
-	// Выбрать один элемент сразу за заголовком h3#widget-title на том же уровне вложенности.
-	result = document.querySelectorAll('h3#widget-title + *')
-	console.log(result)
-
-	// Выбрать все ссылки, следующие за заголовком h3#widget-title на том же уровне вложенности.
-	result = document.querySelectorAll('h3#widget-title ~ a')
-	console.log(result)
-
-	// Выбрать ссылку внутри последнего элемента списка #messages.
-	result = document.querySelectorAll('#messages li:last-child a')
-	console.log(result)
-</script>
+<section class="container">
+	<div class="child1 child"> 1 </div>
+	<div class="child2 child"> =^_____^= </div>
+	<div class="child3 child"> 3 </div>
+	<div class="child4 child"> 4 </div>
+</section>
