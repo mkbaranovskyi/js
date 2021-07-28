@@ -1,18 +1,27 @@
 # Interview questions
 
 - [Interview questions](#interview-questions)
-	- [JS | Common Programming Concepts](#js--common-programming-concepts)
+	- [Common Programming Concepts](#common-programming-concepts)
 		- [Pure function](#pure-function)
-		- [Tasks](#tasks)
-			- [seq](#seq)
+		- [ООП | Функциональное | Реактивное | ... программирование](#ооп--функциональное--реактивное---программирование)
+		- [Принципы ООП](#принципы-ооп)
+		- [SOLID](#solid)
+		- [HTTP vs HTTPS](#http-vs-https)
+	- [JS](#js)
+		- [Итераторы и генераторы](#итераторы-и-генераторы)
+		- [](#)
 	- [Node](#node)
+		- [Event Loop](#event-loop)
+		- [Workers](#workers)
+		- [](#-1)
 	- [React](#react)
 		- [Pure Component](#pure-component)
 		- [Controlled and Uncontrolled components](#controlled-and-uncontrolled-components)
+		- [](#-2)
 
----
+***
 
-## JS | Common Programming Concepts
+## Common Programming Concepts
 
 ### Pure function
 
@@ -38,31 +47,38 @@ Pros:
 - immune to a large number of bugs thanks to its abstraction
 - easy to move and reuse in different places
 
----
+***
 
-###
+### ООП | Функциональное | Реактивное | ... программирование
 
----
+### Принципы ООП
 
-### Tasks
+### SOLID
 
-#### seq
+### HTTP vs HTTPS
 
-Write a functions capable of doing this:
 
-```js
-seq((x) => x + 7)((x) => x * 2)(5) // 17
-```
 
-Solution:
 
-```js
-const seq = (operator1) => (operator2) => (x) => operator1(operator2(x))
-```
+***
 
----
+
+## JS 
+
+### Итераторы и генераторы
+
+### 
+
+***
+
 
 ## Node
+
+### Event Loop
+
+### Workers
+
+### 
 
 ---
 
@@ -89,4 +105,4 @@ See the `Controlled and Uncontrolled components` chapter in the first React less
 
 ---
 
-###
+### 
