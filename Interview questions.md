@@ -55,7 +55,8 @@ Pros:
 
 ### Парадигмы программирования: ООП, Функциональное, Реактивное
 
-Начать отсюда: https://ru.wikipedia.org/wiki/Реактивное_программирование
+1. [Good article](https://dev.to/tamerlang/the-simple-guide-to-programming-paradigms-36o)
+2. [Wiki](https://ru.wikipedia.org/wiki/Реактивное_программирование)
 
 ***
 
