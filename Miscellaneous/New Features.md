@@ -9,6 +9,7 @@
 		- [`fn.toString()`](#fntostring)
 		- [`Symbol.description`](#symboldescription)
 		- [Array.Sort Stability](#arraysort-stability)
+	- [ES 2020](#es-2020)
 
 ---
 
@@ -119,3 +120,8 @@ console.log(sym.description) // My Symbol
 Now all major browsers use stable sorting algorithms. This means, elements with the same value of the comparable entity will retain their initial sorting order.
 
 ---
+
+## ES 2020
+
+1. [To work through later](https://dev.to/bhagatparwinder/8-features-from-es2020-es11-you-should-know-1n9)
+
