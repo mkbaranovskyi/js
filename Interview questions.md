@@ -1,28 +1,28 @@
 # Interview questions
 
 - [Interview questions](#interview-questions)
-	- [Common Programming Concepts](#common-programming-concepts)
-		- [Pure function](#pure-function)
-		- [Парадигмы программирования: ООП, Функциональное, Реактивное](#парадигмы-программирования-ооп-функциональное-реактивное)
-		- [Принципы ООП](#принципы-ооп)
-		- [SOLID](#solid)
-		- [HTTP vs HTTPS](#http-vs-https)
-	- [JS](#js)
-		- [Итераторы и генераторы](#итераторы-и-генераторы)
-		- [Способы получить и установить свойства в объекте. Дескрипторы свойств](#способы-получить-и-установить-свойства-в-объекте-дескрипторы-свойств)
-		- [Разница между обычной и стрелочной функциями](#разница-между-обычной-и-стрелочной-функциями)
-		- [Что такое лексическое окружение?](#что-такое-лексическое-окружение)
-		- [Как изменить `this` в стрелочной функции?](#как-изменить-this-в-стрелочной-функции)
-		- [Как мы можем установить значение свойства в объекте-прототипе?](#как-мы-можем-установить-значение-свойства-в-объекте-прототипе)
-	- [Node](#node)
-		- [Event Loop](#event-loop)
-		- [Нода - однопоточная или многопоточная?](#нода---однопоточная-или-многопоточная)
-		- [Утечки памяти в ноде](#утечки-памяти-в-ноде)
-		- [Workers](#workers)
-	- [React](#react)
-		- [Pure Component](#pure-component)
-		- [Controlled and Uncontrolled components](#controlled-and-uncontrolled-components)
-		- [](#)
+  - [Common Programming Concepts](#common-programming-concepts)
+    - [Pure function](#pure-function)
+    - [Парадигмы программирования: ООП, Функциональное, Реактивное](#парадигмы-программирования-ооп-функциональное-реактивное)
+    - [Принципы ООП](#принципы-ооп)
+    - [SOLID](#solid)
+    - [HTTP vs HTTPS](#http-vs-https)
+  - [JS](#js)
+    - [Итераторы и генераторы](#итераторы-и-генераторы)
+    - [Способы получить и установить свойства в объекте. Дескрипторы свойств](#способы-получить-и-установить-свойства-в-объекте-дескрипторы-свойств)
+    - [Разница между обычной и стрелочной функциями](#разница-между-обычной-и-стрелочной-функциями)
+    - [Что такое лексическое окружение?](#что-такое-лексическое-окружение)
+    - [Как изменить `this` в стрелочной функции?](#как-изменить-this-в-стрелочной-функции)
+    - [Как мы можем установить значение свойства в объекте-прототипе?](#как-мы-можем-установить-значение-свойства-в-объекте-прототипе)
+  - [Node](#node)
+    - [Event Loop](#event-loop)
+    - [Нода - однопоточная или многопоточная?](#нода---однопоточная-или-многопоточная)
+    - [Утечки памяти в ноде](#утечки-памяти-в-ноде)
+    - [Workers](#workers)
+  - [React](#react)
+    - [Pure Component](#pure-component)
+    - [Controlled and Uncontrolled components](#controlled-and-uncontrolled-components)
+    - [](#)
 
 ***
 
@@ -83,11 +83,246 @@ Pros:
   
 `S`: Объект/метод должен выполнять одну простую задачу, и эта задача должна быть инкапсулирована в класс. Следование этому принципу включает **декомпозицию сложных классов** на более простые узкоспециализированные, а также **объединение однотипной функциональности**, которая могла быть разбросана по разным классам, в отдельный класс. 
 
+```ts
+class News {
+  constructor(
+    public title: string,
+    public text: string,
+    public modified = false,
+  ) { }
+
+  update(text: string) {
+    this.text = text;
+    this.modified = true;
+  }
+}
+
+class NewsFormatter {
+  constructor(
+    private readonly _news: News,
+  ) { }
+
+  html() {
+    return `
+    <div class="news">
+      <h1>${this._news.title}</h1>
+      <p>${this._news.text}</p>
+    </div>
+    `;
+  }
+
+  json() {
+    return JSON.stringify({
+      title: this._news.title,
+      text: this._news.text,
+      modified: this._news.modified,
+    }, null, 2);
+  }
+}
+
+const news = new News('The whale is saved', 'Great news, everyone! The whale is saved!');
+
+const formatter = new NewsFormatter(news);
+
+console.log(formatter.html());
+console.log(formatter.json());
+```
+
+Adding `html()` and `json()` to the `News` class would be the violation of `S` because formatting isn't directly related to the news itself. 
+
+---
+
 `O`: Программные сущности - классы, модули, функции - должны быть открыты для расширения, но закрыты для изменения. Это позволяет сущностям **изменять свое поведение, не изменяя исходный код**. Новый функционал при этом добавляется посредством наследования, абстрактных интерфейсов и полиморфизма, а старый работающий код остается нетронутым. 
+
+```ts
+enum FIGURE_TYPE {
+  SQUARE = 'square',
+  CIRCLE = 'circle',
+}
+
+class Figure {
+  constructor(
+    public type: string,
+  ) { }
+}
+
+class Square extends Figure {
+  constructor(
+    public size: number,
+  ) {
+    super(FIGURE_TYPE.SQUARE);
+  }
+}
+
+class Circle extends Figure {
+  constructor(
+    public radius: number,
+  ) {
+    super(FIGURE_TYPE.CIRCLE);
+  }
+}
+
+class AreaCalculator {
+  constructor(
+    private _figures: Figure[] = [],
+  ) { }
+
+  sum() {
+    return this._figures.reduce((accum, figure) => {
+      if (figure instanceof Square) {
+        return accum += this.calcSquare(figure);
+      }
+
+      if (figure instanceof Circle) {
+        return accum += this.calcCircle(figure);
+      }
+
+      throw new Error('Invalid figure type');
+    }, 0);
+  }
+
+  private calcSquare(square: Square) {
+    return square.size ** 2;
+  }
+
+  private calcCircle(circle: Circle) {
+    return (circle.radius ** 2) * Math.PI;
+  }
+}
+
+const calc = new AreaCalculator([
+  new Circle(4),
+  new Square(7),
+  new Circle(3),
+])
+
+console.log(calc.sum()); // 127.53981633974483
+```
+
+If we need to add Rectangle logic, we cannot just add it to the existing AreaCalculator's `sum` method because it will be the violation of the Open-closed principle.
+
+Instead, it's better to add a common `getArea()` method to the base class and make the clildren implement it their own way. 
+
+We don't even need the `type` property this way (though we might still keep it for other purposes).
+
+```ts
+abstract class Figure {
+  getArea(): number {
+    throw new Error('This method should be implemented in the descendents');
+  }
+}
+
+class Square extends Figure {
+  constructor(
+    public size: number,
+  ) {
+    super();
+  }
+
+  getArea(): number {
+    return this.size ** 2;
+  }
+}
+
+class Circle extends Figure {
+  constructor(
+    public radius: number,
+  ) {
+    super();
+  }
+
+  getArea(): number {
+    return (this.radius ** 2) * Math.PI;
+  }
+}
+
+class AreaCalculator {
+  constructor(
+    private _figures: Figure[] = [],
+  ) { }
+
+  sum() {
+    return this._figures.reduce((accum, figure) => accum += figure.getArea(), 0);
+  }
+}
+
+const calc = new AreaCalculator([
+  new Circle(4),
+  new Square(7),
+  new Circle(3),
+])
+
+console.log(calc.sum()); // 127.53981633974483
+```
+
+---
 
 `L`: При построении иерархий наследования, создаваемые наследники должны корректно реализовывать поведение базового типа. Наследник класса дополняет, но не заменяет поведение базового класса. То есть в любом месте программы замена базового класса на класс-наследник не должна сломать код, который работал ранее с базовым классом.
 
-`I`: Клиенты не должны зависеть от методов, которые они не используют. Т.е. изменение кода, не используемого клиентом, не должно ломать код, **используемый** клиентом. Это перекликается с `S`.
+[Видос с объяснением](https://youtu.be/NqvwYcjrwdw)
+
+Простыми словами:
+
+- Классы-наследники должны предоставлять **не меньше функционала, чем базовый класс**. Т.е. если тебе нужно унаследовать от базового класса лишь некоторые его методы, **не переопределяй другие выкидыванием ошибок или `null`** - это непредсказуемое для других поведение! Кто-то когда-то будет использовать твой класс, думая, что раз он наследует от базового, то и базовый функционал у него есть, и столкнется с неприятностями.
+- Подкласс не должен требовать от вызывающего кода больше, чем базовый класс. Например, в базовом классе ты можешь нормально вызвать какой-то метод, а в подклассе сначала надо делать какой-то `init()` до того, Как заюзать метод - это будет нарушением `L`. 
+
+Исключения могут быть. Например, когда нужно мокнуть какой-то класс, и тебе реально не нужны все его методы. Тогда стоит написать комментарий о том, что `L` тут нарушается.
+
+---
+
+`Interface segregation`: Клиенты не должны зависеть от методов, которые они не используют. Т.е. изменение кода, не используемого клиентом, не должно ломать код, **используемый** клиентом. Это перекликается с `S`.
+
+```ts
+abstract class Animal {
+  constructor(
+    public name: string,
+  ) { }
+
+  walk() {
+    console.log(`${this.name} can walk`);
+  }
+
+  fly() {
+    console.log(`${this.name} can fly`);
+  }
+
+  swim() {
+    console.log(`${this.name} can swim`);
+  }
+}
+
+class Dog extends Animal { }
+class Eagle extends Animal { }
+class Whale extends Animal { }
+
+const dog = new Dog('Doge');
+const eagle = new Eagle('Feather');
+const whale = new Whale('Fail');
+
+dog.walk();
+dog.swim();
+dog.fly(); // shouldn't be here
+```
+
+Как ограничить возможность собаки летать? 
+
+Плохой способ - переопределить ее метод `fly()`:
+
+```ts
+class Dog extends Animal {
+  fly() {
+    throw new Error("The dog can't fly");
+  }
+}
+```
+
+Хороший способ:
+
+```ts
+
+```
+
+---
 
 `D`: Модули верхних уровней не должны зависеть от модулей нижних уровней. Оба типа модулей должны зависеть от абстракций. Т.е. наверху должны быть базовые абстракции (абстрактные классы или интерфейсы), которые не должны подстраиваться под частности ниже по иерархии. 
 
