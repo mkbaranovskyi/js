@@ -390,6 +390,30 @@ git merge master
 
 ---
 
+## Squash several commits into a single one
+
+```bash
+# Start an interactive rebase
+git rebase -i HEAD~3
+# This command opens an interactive rebase for the last three commits
+
+# Your default text editor will open with a list of the last three commits. It will look something like this:
+pick a1b2c3 Commit message 1
+pick d4e5f6 Commit message 2
+pick g7h8i9 Commit message 3
+
+# Change pick to squash or s for the commits you want to squash. In this case, you want to squash the second and third commits, so you would change it to:
+pick a1b2c3 Commit message 1
+squash d4e5f6 Commit message 2
+squash g7h8i9 Commit message 3
+
+# Save and close the file. Another text editor will open for you to enter a new commit message. This message will be the new commit message for the squashed commit.
+
+# If everything is ok, you'll see a message: "Successfully rebased and updated refs/heads/master."
+```
+
+---
+
 ## Bare repo
 
 Repos without working directory (means there is actually only the `.git` directory of the usual repo). Usually created for sharing.
